@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 
-include("day1:q1")
+include("day1")

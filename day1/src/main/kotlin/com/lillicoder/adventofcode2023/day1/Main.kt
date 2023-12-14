@@ -1,4 +1,4 @@
-package com.lillicoder.adventofcode2023
+package com.lillicoder.adventofcode2023.day1
 
 fun main() {
 	/**
