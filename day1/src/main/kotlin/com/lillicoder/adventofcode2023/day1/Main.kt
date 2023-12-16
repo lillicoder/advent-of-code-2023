@@ -16,6 +16,9 @@ fun main() {
 
 class CalibrationValueParser {
 
+	/**
+	 * Map of the digits 1 through 9 to their English-language word equivalent.
+	 */
 	private val wordToNumber: Map<String, Int> = mapOf(
 		"one" to 1,
 		"two" to 2,
@@ -38,7 +41,7 @@ class CalibrationValueParser {
 		javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
 			sum += parseCalibrationValue(line)
 		}
-		return sum //54953 is wrong
+		return sum
 	}
 
 	/**
@@ -63,44 +66,17 @@ class CalibrationValueParser {
 	 * @return First digit.
 	 */
 	private fun findFirstDigit(line: String): Int {
+		// Pack first digit into a map of position -> digit
 		val firstDigit = line.first { it.isDigit() }
-		val firstDigitPosition = line.indexOf(firstDigit)
-		val onePosition = "one".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val twoPosition = "two".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val threePosition = "three".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val fourPosition = "four".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val fivePosition = "five".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val sixPosition = "six".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val sevenPosition = "seven".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val eightPosition = "eight".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		val ninePosition = "nine".toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE
-		return when (
-			minOf(
-				firstDigitPosition,
-				onePosition,
-				twoPosition,
-				threePosition,
-				fourPosition,
-				fivePosition,
-				sixPosition,
-				sevenPosition,
-				eightPosition,
-				ninePosition
-			)
-		) {
-			firstDigitPosition -> firstDigit.toString().toInt()
-			onePosition -> wordToNumber["one"]!!
-			twoPosition -> wordToNumber["two"]!!
-			threePosition -> wordToNumber["three"]!!
-			fourPosition -> wordToNumber["four"]!!
-			fivePosition -> wordToNumber["five"]!!
-			sixPosition -> wordToNumber["six"]!!
-			sevenPosition -> wordToNumber["seven"]!!
-			eightPosition -> wordToNumber["eight"]!!
-			ninePosition -> wordToNumber["nine"]!!
-			Int.MAX_VALUE -> throw NumberFormatException("This shouldn't happen.")
-			else -> throw NumberFormatException("We didn't make a match :(")
-		}
+		val digitsByPosition = mutableMapOf(line.indexOf(firstDigit) to firstDigit.toString().toInt())
+
+		// Pack position for "one" through "nine" into map of position -> digit
+		wordToNumber.map {
+			(it.key.toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE) to it.value
+		}.toMap(digitsByPosition)
+
+		// Smallest key is the first digit value in the line
+		return digitsByPosition[digitsByPosition.keys.min()]!! // We are guaranteed to have packed a value here
 	}
 
 	/**
@@ -110,43 +86,16 @@ class CalibrationValueParser {
 	 * @return Last digit.
 	 */
 	private fun findLastDigit(line: String): Int {
+		// Pack last digit into a map of position -> digit
 		val lastDigit = line.last { it.isDigit() }
-		val lastDigitPosition = line.lastIndexOf(lastDigit)
-		val onePosition = "one".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val twoPosition = "two".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val threePosition = "three".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val fourPosition = "four".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val fivePosition = "five".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val sixPosition = "six".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val sevenPosition = "seven".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val eightPosition = "eight".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		val ninePosition = "nine".toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE
-		return when (
-			maxOf(
-				lastDigitPosition,
-				onePosition,
-				twoPosition,
-				threePosition,
-				fourPosition,
-				fivePosition,
-				sixPosition,
-				sevenPosition,
-				eightPosition,
-				ninePosition
-			)
-		) {
-			lastDigitPosition -> lastDigit.toString().toInt()
-			onePosition -> wordToNumber["one"]!!
-			twoPosition -> wordToNumber["two"]!!
-			threePosition -> wordToNumber["three"]!!
-			fourPosition -> wordToNumber["four"]!!
-			fivePosition -> wordToNumber["five"]!!
-			sixPosition -> wordToNumber["six"]!!
-			sevenPosition -> wordToNumber["seven"]!!
-			eightPosition -> wordToNumber["eight"]!!
-			ninePosition -> wordToNumber["nine"]!!
-			Int.MAX_VALUE -> throw NumberFormatException("This shouldn't happen.")
-			else -> throw NumberFormatException("We didn't make a match :(")
-		}
+		val digitsByPosition = mutableMapOf(line.lastIndexOf(lastDigit) to lastDigit.toString().toInt())
+
+		// Pack position for "one" through "nine" into map of position -> digit
+		wordToNumber.map {
+			(it.key.toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE) to it.value
+		}.toMap(digitsByPosition)
+
+		// Largest key is the last digit value in the line
+		return digitsByPosition[digitsByPosition.keys.max()]!!
 	}
 }
