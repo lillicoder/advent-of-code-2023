@@ -1,10 +1,10 @@
 plugins {
-    kotlin("jvm") version "1.9.10"
+    alias(libs.plugins.kotlin.jvm)
     application
 }
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 }
 
 dependencies {
