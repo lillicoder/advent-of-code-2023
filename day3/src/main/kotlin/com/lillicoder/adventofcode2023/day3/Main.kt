@@ -18,9 +18,8 @@ fun main() {
 data class Node(
     val x: Int,
     val y: Int,
-    val value: String
+    val value: String,
 ) {
-
     /**
      * Determines if the value of this node is numeric.
      * @return True if numeric, false otherwise.
@@ -42,7 +41,7 @@ fun List<Node>.toInt(): Int = joinToString("") { it.value }.toInt()
 data class Gear(
     val node: Node,
     val adjacentParts: List<Int>,
-    val ratio: Int = adjacentParts.reduce { accumulator, element -> accumulator * element }
+    val ratio: Int = adjacentParts.reduce { accumulator, element -> accumulator * element },
 )
 
 /**
@@ -52,23 +51,22 @@ data class Gear(
  */
 data class Schematic(
     val grid: List<List<Node>>,
-    val numbers: List<List<Node>>
+    val numbers: List<List<Node>>,
 ) {
-
     /**
      * Returns the adjacent nodes for the given [Node].
      * @param node Node.
      */
     fun adjacent(node: Node): List<Node> {
         return listOfNotNull(
-            grid.getOrNull(node.y - 1)?.getOrNull(node.x - 1), // top left
-            grid.getOrNull(node.y)?.getOrNull(node.x - 1), // top
-            grid.getOrNull(node.y + 1)?.getOrNull(node.x - 1), // top right
-            grid.getOrNull(node.y - 1)?.getOrNull(node.x), // left
-            grid.getOrNull(node.y + 1)?.getOrNull(node.x), // right
-            grid.getOrNull(node.y - 1)?.getOrNull(node.x + 1), // bottom left
-            grid.getOrNull(node.y)?.getOrNull(node.x + 1), // bottom
-            grid.getOrNull(node.y + 1)?.getOrNull(node.x + 1), // bottom right
+            grid.getOrNull(node.y - 1)?.getOrNull(node.x - 1),
+            grid.getOrNull(node.y)?.getOrNull(node.x - 1),
+            grid.getOrNull(node.y + 1)?.getOrNull(node.x - 1),
+            grid.getOrNull(node.y - 1)?.getOrNull(node.x),
+            grid.getOrNull(node.y + 1)?.getOrNull(node.x),
+            grid.getOrNull(node.y - 1)?.getOrNull(node.x + 1),
+            grid.getOrNull(node.y)?.getOrNull(node.x + 1),
+            grid.getOrNull(node.y + 1)?.getOrNull(node.x + 1),
         )
     }
 
@@ -85,7 +83,9 @@ data class Schematic(
                 adjacent.any {
                     it.value != "." && it.value.toIntOrNull() == null
                 }
-            ) return true
+            ) {
+                return true
+            }
         }
 
         return false
@@ -96,7 +96,6 @@ data class Schematic(
  * Parses a raw engine schematic into a [Schematic].
  */
 class EngineSchematicParser {
-
     /**
      * Parses the file with the given filename and returns a [Schematic].
      * @param filename Name of the file to parse.
@@ -112,7 +111,7 @@ class EngineSchematicParser {
             val columns = mutableListOf<Node>()
 
             // Split on "" is like Java 7 and has leading empty value, filter to drop that
-            line.split("").filter{ it.isNotEmpty() }.forEachIndexed { column, value ->
+            line.split("").filter { it.isNotEmpty() }.forEachIndexed { column, value ->
                 // Save the node
                 val node = Node(column, row, value)
                 columns.add(node)
@@ -142,7 +141,6 @@ class EngineSchematicParser {
  * Calculator that sums the valid part numbers from a [Schematic].
  */
 class SumPartNumbersCalculator {
-
     /**
      * Sums the valid part numbers from the given [Schematic].
      * @param schematic Schematic to evaluate.
@@ -165,7 +163,6 @@ class SumPartNumbersCalculator {
  * Calculator that sums the gear ratios of all gears from a [Schematic].
  */
 class SumGearRatiosCalculator {
-
     /**
      * Sums the gear ratios of all gears in the given [Schematic].
      * @param schematic Schematic to evaluate.
@@ -175,7 +172,7 @@ class SumGearRatiosCalculator {
         var sum = 0
 
         val gears: List<Gear> = findGears(schematic)
-        gears.forEach {gear -> sum += gear.ratio }
+        gears.forEach { gear -> sum += gear.ratio }
 
         return sum
     }

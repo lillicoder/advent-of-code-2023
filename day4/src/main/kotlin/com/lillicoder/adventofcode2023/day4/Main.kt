@@ -19,9 +19,8 @@ fun main() {
 data class Scratchcard(
     val id: Int,
     val winningNumbers: List<Int>,
-    val playNumbers: List<Int>
+    val playNumbers: List<Int>,
 ) {
-
     /**
      * Gets the number of winning numbers that match the play numbers.
      * @return Number of matches.
@@ -44,7 +43,6 @@ data class Scratchcard(
  * Parses scratchcard records into a list of [Scratchcard].
  */
 class ScratchcardParser {
-
     /**
      * Parses the file with the given filename and returns a list of [Scratchcard].
      * @param filename Name of the file to parse.
@@ -82,7 +80,6 @@ class ScratchcardParser {
  * Calculator for counting the total number of scratchcards, including winning copies.
  */
 class ScratchcardCloneCalculator {
-
     /**
      * Counts the total number of scratchcards represented by the given list of [Scratchcard], including
      * cards that get copied due to having one or more matches.
@@ -111,9 +108,15 @@ class ScratchcardCloneCalculator {
      * @param end Number of IDs to get.
      * @return List of card IDs.
      */
-    private fun getCopyIds(scratchcards: List<Scratchcard>, start: Int, count: Int): List<Int> {
+    private fun getCopyIds(
+        scratchcards: List<Scratchcard>,
+        start: Int,
+        count: Int,
+    ): List<Int> {
         val next = mutableListOf<Int>()
-        for (i in 1..count) { scratchcards.getOrNull(start + i)?.let { next.add(it.id) } }
+        for (i in 1..count) {
+            scratchcards.getOrNull(start + i)?.let { next.add(it.id) }
+        }
         return next
     }
 }
