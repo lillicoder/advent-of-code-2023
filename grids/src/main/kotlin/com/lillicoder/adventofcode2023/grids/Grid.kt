@@ -42,6 +42,14 @@ data class Grid<T>(
     }
 
     /**
+     * Gets the column for this grid at the given index.
+     * @param index Column index.
+     * @return Column nodes.
+     * @throws IndexOutOfBoundsException
+     */
+    fun column(index: Int) = nodes.map { it[index] }
+
+    /**
      * Gets the Manhattan distance between the given starting and ending nodes.
      * @param start Start node.
      * @param end End node.
@@ -79,8 +87,8 @@ data class Grid<T>(
      * @param action Action to perform.
      */
     fun forEachColumn(action: (List<Node<T>>) -> Unit) {
-        for (column in 0..<width) {
-            action(nodes.map { it[column] })
+        for (index in 0..<width) {
+            action(column(index))
         }
     }
 
@@ -89,8 +97,8 @@ data class Grid<T>(
      * @param action Action to perform.
      */
     fun forEachColumnIndexed(action: (Int, List<Node<T>>) -> Unit) {
-        for (column in 0..<width) {
-            action(column, nodes.map { it[column] })
+        for (index in 0..<width) {
+            action(index, column(index))
         }
     }
 
@@ -176,6 +184,50 @@ data class Grid<T>(
 
         return path.ifEmpty { null }
     }
+
+    /**
+     * Gets the row for this grid at the given index.
+     * @param index Row index.
+     * @return Row nodes.
+     * @throws IndexOutOfBoundsException
+     */
+    fun row(index: Int) = nodes[index]
+
+    /**
+     * Returns a list of snapshots of the window of the given size sliding along the
+     * columns of this grid.
+     * @param size Window size.
+     * @param step Step size.
+     * @return Windowed columns.
+     */
+    fun windowedColumns(size: Int, step: Int = 1) : List<List<List<Node<T>>>> {
+        val result = ArrayList<List<List<Node<T>>>>()
+
+        var start = 0
+        while (start < width - 1) {
+            var window = mutableListOf<List<Node<T>>>()
+            for (index in 0..<size) {
+                val next = start + index
+                window.add(column(next))
+            }
+
+            result.add(window)
+            window = mutableListOf()
+
+            start += step
+        }
+
+        return result
+    }
+
+    /**
+     * Returns a list of snapshots of the window of the given size sliding along the
+     * rows of this grid.
+     * @param size Window size.
+     * @param step Step size.
+     * @return Windowed rows.
+     */
+    fun windowedRows(size: Int, step: Int = 1) = nodes.windowed(size, step)
 
     override fun toString() = nodes.joinToString("\n") {
         it.joinToString("") {

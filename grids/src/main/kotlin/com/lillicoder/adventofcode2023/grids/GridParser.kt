@@ -11,19 +11,36 @@ class GridParser {
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grid.
      */
-    fun <T> parse(filename: String, converter: (String) -> T): Grid<T> {
+    fun <T> parse(filename: String, converter: (String) -> T): Grid<T> = parseList(filename, converter).first()
+
+    /**
+     * Parses one or more [Grid] from the file corresponding to the given file name. File will be pulled from resources.
+     * @param filename Filename.
+     * @param converter Function to convert parsed nodes to their expected type.
+     * @return Parsed grids.
+     */
+    fun <T> parseList(filename: String, converter: (String) -> T): List<Grid<T>> {
+        val input = javaClass.classLoader.getResourceAsStream(filename)!!.reader().readText()
+        return input.split("\r\n\r\n").map { parseGrid(it, converter) }
+    }
+
+    /**
+     * Parses a [Grid] from the given raw input.
+     * @param raw Raw input.
+     * @param converter Function to convert parsed nodes to their expected type.
+     * @return Parsed grid.
+     */
+    private fun <T> parseGrid(raw: String, converter: (String) -> T): Grid<T> {
         val grid = mutableListOf<MutableList<Node<T>>>()
 
-        var y = 0L
-        javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
+        raw.split("\r\n").forEachIndexed { y, line ->
             val row = mutableListOf<Node<T>>()
             line.split("").filter { it.isNotEmpty() }.forEachIndexed { x, value ->
-                val node = Node(x.toLong(), y, converter(value))
+                val node = Node(x.toLong(), y.toLong(), converter(value))
                 row.add(node)
             }
 
             grid.add(row)
-            y++
         }
 
         return Grid(grid)
