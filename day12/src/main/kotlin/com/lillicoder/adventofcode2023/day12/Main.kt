@@ -1,16 +1,21 @@
 package com.lillicoder.adventofcode2023.day12
 
+import kotlin.math.min
+
 fun main() {
     val springs = SpringsParser().parse("input.txt")
     val calculator = SpringPermutationCalculator()
-    //val arrangements = calculator.countValidArrangements(springs)
-    //println("The number of valid arrangements for factor 1 is $arrangements.")
+    val arrangements = calculator.sumArrangements(springs)
+    println("The number of valid arrangements for factor 1 is $arrangements.")
 
-    val foldedArrangements = calculator.countValidArrangements(springs, 5)
+    val foldedArrangements = calculator.sumArrangements(springs, 5)
     println("The number of valid arrangements for factor 5 is $foldedArrangements.")
 }
 
-class SpringCondition(
+/**
+ * Represents a row of springs and their associated pattern of contiguous broken springs.
+ */
+class SpringRow(
     val springs: String,
     val pattern: List<Int>
 )
@@ -21,9 +26,15 @@ class SpringPermutationCalculator {
     private val operational = '.'
     private val unknown = '?'
 
-    private val cache = mutableMapOf<String, Boolean>()
+    private val cache = mutableMapOf<String, Long>()
 
-    fun countValidArrangements(conditions: List<SpringCondition>, factor: Int = 1) = conditions.sumOf {
+    /**
+     * Finds all valid arrangements of each of the given [SpringRow] and sums them.
+     * @param rows Rows to evaluate.
+     * @param factor Fold factor. Defaults to 1.
+     * @return Sum of valid arrangements.
+     */
+    fun sumArrangements(rows: List<SpringRow>, factor: Int = 1) = rows.sumOf {
         var expandedSprings = it.springs
         val expandedPattern = it.pattern.toMutableList()
 
@@ -32,55 +43,73 @@ class SpringPermutationCalculator {
             expandedPattern += it.pattern
         }
 
-        countValidArrangements(expandedSprings, expandedPattern)
+        arrangements(expandedSprings, expandedPattern)
     }
 
-    private fun countValidArrangements(springs: String, pattern: List<Int>): Long {
+    /**
+     * Gets the number of valid arrangements for the given springs and their broken springs pattern.
+     * @param springs Springs to evaluate.
+     * @param pattern Pattern of contiguous blocks of broken springs.
+     * @return Number of valid arrangements.
+     */
+    private fun arrangements(springs: String, pattern: List<Int>): Long {
+        val key = "$springs|${pattern.joinToString(",")}"
+        return cache[key] ?: computeArrangements(springs, pattern).apply { cache[key] = this }
+    }
+
+    private fun computeArrangements(springs: String, pattern: List<Int>): Long {
+        // Case 1 - no more patterns to check; spring must not have anything damaged as we've exhausted
+        // available damaged gear blocks
+        if (pattern.isEmpty()) return if (springs.contains(damaged)) 0L else 1L
+
+        // Case 2 - not enough remaining springs; we need at least 1 space per pattern plus 1 in between each pattern
+        val spaceNeeded = pattern.sum() + pattern.size - 1
+        if (springs.length < spaceNeeded) return 0
+
+        // Case 3 - starts with operational spring; we only want to evaluate unknown or damaged springs
+        // just advance ahead to the next substring
+        if (springs.startsWith(operational)) return arrangements(springs.drop(1), pattern)
+
+        // Get the next block from the pattern
+        val block = pattern.first()
+
+        // Determine if we have any operational springs in this block
+        val areAllNonOperational = springs.substring(0, block).contains(operational).not()
+
+        // End of block is either next character or end of string, whichever comes first
+        val end = min(block + 1, springs.length)
+
         var count = 0L
 
-        springs.forEach { spring ->
-            // Only consider unknown springs
-            if (spring != unknown) return@forEach
+        // We have more springs available and we don't start
+        val a = springs.length > block && springs[block] != damaged
+        val b = springs.length <= block
 
-            // Solve sub-problem as DAMAGED
-            val asDamaged = springs.replaceFirst(spring.toString(), damaged.toString())
-            count += countValidArrangements(asDamaged, pattern)
+        // Block is all # or ? AND is either the end of the springs OR is there are more spring blocks to come;
+        // if so, drop this block and work the sub-problem
+        if (areAllNonOperational && (a || b)) count += arrangements(springs.drop(end), pattern.drop(1))
 
-            // Solve sub-problem as OPERATIONAL
-            val asOperational = springs.replaceFirst(spring.toString(), operational.toString())
-            return count + countValidArrangements(asOperational, pattern)
-        }
+        // Block has an unknown string, work the sub-problem by dropping this spring
+        if (springs.startsWith(unknown)) count += arrangements(springs.drop(1), pattern)
 
-        // If we reach here, we have a set of springs where there are no UNKNOWN, check if valid
-        return if (isValid(springs, pattern)) 1L else 0L
-    }
-
-    private fun isValid(springs: String, pattern: List<Int>): Boolean {
-        val key = springs + pattern.joinToString("")
-        return when (val cached = cache[key]) {
-            null -> {
-                // Springs must be all damaged or operational for this check, so
-                // the length of each damaged group must match the pattern
-                val groups = springs.split(".").filter { it.isNotEmpty() }
-                val isValid = groups.size == pattern.size && groups.zip(pattern).all { it.first.length == it.second }
-                cache[key] = isValid
-
-                isValid
-            }
-            else -> cached
-        }
+        return count
     }
 }
 
 class SpringsParser {
 
-    fun parse(filename: String): List<SpringCondition> {
-        val conditions = mutableListOf<SpringCondition>()
+    /**
+     * Parses the file with the given filename to a list of [SpringRow].
+     * @param filename Filename.
+     * @return Parsed spring rows.
+     */
+    fun parse(filename: String): List<SpringRow> {
+        val conditions = mutableListOf<SpringRow>()
         javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
             val parts = line.split(" ")
             val springs = parts[0]
             val pattern = parts[1].split(",").map { it.toInt() }
-            conditions.add(SpringCondition(springs, pattern))
+            conditions.add(SpringRow(springs, pattern))
         }
 
         return conditions
