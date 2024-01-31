@@ -2,14 +2,16 @@ package com.lillicoder.adventofcode2023.day2
 
 import kotlin.math.max
 
-fun main() {
-    val games = GameParser().parseGames("input.txt")
+class Day2() {
+    fun main() {
+        val games = GameParser().parse("input.txt")
+        println("The sum of all valid game IDs is ${part1(games)}.")
+        println("The sum of all minimum cubes powers is ${part2(games)}.")
+    }
 
-    val idSum = GameIdSummationCalculator().sumValidGameIds(games)
-    println("The sum of all valid game IDs is $idSum.")
+    fun part1(games: List<Game>) = GameIdSummationCalculator().sumValidGameIds(games)
 
-    val powerSum = GameMinimumCubesPowerSummationCalculator().sumMinimumCubesPowers(games)
-    println("The sum of all minimum cubes powers is $powerSum.")
+    fun part2(games: List<Game>) = GameMinimumCubesPowerSummationCalculator().sumMinimumCubesPowers(games)
 }
 
 /**
@@ -64,31 +66,29 @@ class GameParser {
      * @param filename Name of the file to parse.
      * @return List of games.
      */
-    fun parseGames(filename: String): List<Game> {
-        val games: MutableList<Game> = mutableListOf()
-        javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
-            val id = line.substringBefore(": ").substringAfter("Game ").toInt()
-            val rounds = parseRounds(line)
-            games.add(Game(id, rounds))
-        }
+    fun parse(filename: String) =
+        parse(
+            javaClass.classLoader.getResourceAsStream(filename)!!.reader().readLines(),
+        )
 
-        return games
-    }
+    /**
+     * Parses the given raw game input and returns a list of [Game].
+     * @param raw Raw games to parse.
+     * @return List of games.
+     */
+    fun parse(raw: List<String>) =
+        raw.map {
+            val id = it.substringBefore(": ").substringAfter("Game ").toInt()
+            val rounds = parseRounds(it)
+            Game(id, rounds)
+        }
 
     /**
      * Parses the list of [Round] for the given raw game input.
      * @param game Game to parse.
      * @return List of rounds.
      */
-    private fun parseRounds(game: String): List<Round> {
-        val rounds: MutableList<Round> = mutableListOf()
-
-        game.substringAfter(": ").split("; ").forEach { round ->
-            rounds.add(parseRound(round))
-        }
-
-        return rounds
-    }
+    private fun parseRounds(game: String) = game.substringAfter(": ").split("; ").map { parseRound(it) }
 
     /**
      * Parses a [Round] from the given raw round input.
@@ -97,22 +97,18 @@ class GameParser {
      */
     private fun parseRound(round: String): Round {
         // Pack defaults, not all colors are guaranteed to be present in a round
-        val pulls: MutableMap<Color, Pull> =
-            mutableMapOf(
-                Color.BLUE to Pull(Color.BLUE, 0),
-                Color.GREEN to Pull(Color.GREEN, 0),
-                Color.RED to Pull(Color.RED, 0),
-            )
-
-        round.split(", ").forEach { pull ->
-            val parsed = parsePull(pull)
-            pulls[parsed.color] = parsed
-        }
-
+        val pulls =
+            round.split(", ").map {
+                parsePull(it)
+            }.associateBy {
+                it.color
+            }.withDefault {
+                Pull(it, 0)
+            }
         return Round(
-            pulls[Color.BLUE]!!,
-            pulls[Color.GREEN]!!,
-            pulls[Color.RED]!!,
+            pulls.getValue(Color.BLUE),
+            pulls.getValue(Color.GREEN),
+            pulls.getValue(Color.RED),
         )
     }
 
@@ -141,31 +137,14 @@ class GameMinimumCubesPowerSummationCalculator {
      * @param games Games to evaluate.
      * @return Sum of minimum cubes powers.
      */
-    fun sumMinimumCubesPowers(games: List<Game>): Int {
-        var sum = 0
-        games.forEach { game ->
-            val minimumCubes = minimumCubes(game)
-            val power = minimumCubes.reduce { accumulator, element -> accumulator * element }
-            sum += power
+    fun sumMinimumCubesPowers(games: List<Game>) =
+        games.sumOf { game ->
+            listOf(
+                game.rounds.maxByOrNull { it.blue.count }?.blue?.count ?: 0,
+                game.rounds.maxByOrNull { it.green.count }?.green?.count ?: 0,
+                game.rounds.maxByOrNull { it.red.count }?.red?.count ?: 0,
+            ).reduce { accumulator, element -> accumulator * element }
         }
-
-        return sum
-    }
-
-    private fun minimumCubes(game: Game): List<Int> {
-        // Find largest value per color in all rounds
-        var blue = 0
-        var green = 0
-        var red = 0
-
-        game.rounds.forEach { round ->
-            blue = max(blue, round.blue.count)
-            green = max(green, round.green.count)
-            red = max(red, round.red.count)
-        }
-
-        return listOf(blue, green, red)
-    }
 }
 
 /**
@@ -178,14 +157,7 @@ class GameIdSummationCalculator {
      * @param games Games to evaluate.
      * @return Sum of all valid game IDs.
      */
-    fun sumValidGameIds(games: List<Game>): Int {
-        var sum = 0
-        games.forEach { game ->
-            if (isValidGame(game)) sum += game.id
-        }
-
-        return sum
-    }
+    fun sumValidGameIds(games: List<Game>) = games.sumOf { game -> if (isValidGame(game)) game.id else 0 }
 
     /**
      * Determines if the given [Game] is valid for the known maximum allowed
@@ -193,13 +165,7 @@ class GameIdSummationCalculator {
      * @param game Game to check.
      * @return True if game is valid, false otherwise.
      */
-    private fun isValidGame(game: Game): Boolean {
-        game.rounds.forEach { round ->
-            if (!isValidRound(round)) return false
-        }
-
-        return true
-    }
+    private fun isValidGame(game: Game) = game.rounds.all { isValidRound(it) }
 
     /**
      * Determines if the given [Round] is valid for the known maximum allowed cubes
@@ -207,14 +173,7 @@ class GameIdSummationCalculator {
      * @param round Round to check.
      * @return True if the round is valid, false otherwise.
      */
-    private fun isValidRound(round: Round): Boolean {
-        val pulls = listOf(round.blue, round.green, round.red)
-        pulls.forEach { pull ->
-            if (!isValidPull(pull)) return false
-        }
-
-        return true
-    }
+    private fun isValidRound(round: Round) = listOf(round.blue, round.green, round.red).all { isValidPull(it) }
 
     /**
      * Determines if the given [Pull] is valid for the known
