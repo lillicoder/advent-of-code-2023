@@ -12,34 +12,19 @@ data class Grid<T>(
 ) {
 
     /**
-     * Gets the list of [Node] adjacent to the given node.
-     * @param node Node to get neighbors of.
+     * Gets the list of [Node] adjacent to the given node. A node is considered
+     * adjacent if it is directly above, below, to the left of, or to the right of
+     * the given node.
+     * @param node Node.
      * @return Adjacent nodes.
      */
-    private fun adjacent(node: Node<T>): List<Node<T>> {
-        val adjacent = mutableListOf<Node<T>>()
-        if (node.y > 0) {
-            val top = nodes[node.y.toInt() - 1][node.x.toInt()]
-            adjacent.add(top)
-        }
-
-        if (node.y < nodes.size - 1) {
-            val bottom = nodes[node.y.toInt() + 1][node.x.toInt()]
-            adjacent.add(bottom)
-        }
-
-        if (node.x > 0) {
-            val left = nodes[node.y.toInt()][node.x.toInt() - 1]
-            adjacent.add(left)
-        }
-
-        if (node.x < nodes[0].size - 1) {
-            val right = nodes[node.y.toInt()][node.x.toInt() + 1]
-            adjacent.add(right)
-        }
-
-        return adjacent
-    }
+    fun adjacent(node: Node<T>) =
+        listOfNotNull(
+            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() - 1),
+            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt()),
+            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt()),
+            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() + 1),
+        )
 
     /**
      * Gets the column for this grid at the given index.
@@ -76,7 +61,7 @@ data class Grid<T>(
      * Performs the given action on each node in this grid.
      * @param action Action to perform.
      */
-    private fun forEach(action: (Node<T>) -> Unit) = nodes.forEach {
+    fun forEach(action: (Node<T>) -> Unit) = nodes.forEach {
         it.forEach { node ->
             action(node)
         }
@@ -146,6 +131,20 @@ data class Grid<T>(
 
         return Grid(mapped)
     }
+
+    /**
+     * Gets the list of [Node] neighboring the given node. A node is considered a neighbor
+     * if it is adjacent to or diagonally touching the given node.
+     * @param node Node.
+     * @return Neighboring nodes.
+     */
+    fun neighbors(node: Node<T>) =
+        adjacent(node) + listOfNotNull(
+            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() - 1),
+            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() - 1),
+            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() + 1),
+            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() + 1),
+        )
 
     /**
      * Finds the path of [Node] from the starting node to the ending node.

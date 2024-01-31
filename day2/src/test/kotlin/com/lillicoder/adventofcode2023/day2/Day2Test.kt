@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.day2
 
-import org.junit.jupiter.api.Test
+import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class Day2Test {

@@ -30,7 +30,7 @@ class GridParser {
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grid.
      */
-    private fun <T> parseGrid(raw: String, converter: (String) -> T): Grid<T> {
+    fun <T> parseGrid(raw: String, converter: (String) -> T): Grid<T> {
         val grid = mutableListOf<MutableList<Node<T>>>()
 
         raw.split("\r\n").forEachIndexed { y, line ->
