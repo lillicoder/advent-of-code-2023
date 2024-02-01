@@ -3,7 +3,7 @@ package com.lillicoder.adventofcode2023.day3
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class Day3Test {
+internal class Day3Test {
     private val input =
         """467..114..
            |...*......
