@@ -15,8 +15,8 @@ internal class Day3Test {
            |......755.
            |...$.*....
            |.664.598..
-        """.trimMargin().lines()
-    private val schematic = EngineSchematicParser().parse(input)
+        """.trimMargin()
+    private val schematic = EngineSchematicParser().parse(input.lines())
     private val day3 = Day3()
 
     @Test

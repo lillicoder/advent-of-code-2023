@@ -1,14 +1,13 @@
 package com.lillicoder.adventofcode2023.day2
 
-import kotlin.math.max
+fun main() {
+    val day2 = Day2()
+    val games = GameParser().parse("input.txt")
+    println("The sum of all valid game IDs is ${day2.part1(games)}.")
+    println("The sum of all minimum cubes powers is ${day2.part2(games)}.")
+}
 
 class Day2() {
-    fun main() {
-        val games = GameParser().parse("input.txt")
-        println("The sum of all valid game IDs is ${part1(games)}.")
-        println("The sum of all minimum cubes powers is ${part2(games)}.")
-    }
-
     fun part1(games: List<Game>) = GameIdSummationCalculator().sumValidGameIds(games)
 
     fun part2(games: List<Game>) = GameMinimumCubesPowerSummationCalculator().sumMinimumCubesPowers(games)

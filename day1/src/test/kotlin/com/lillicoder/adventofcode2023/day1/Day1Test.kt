@@ -13,9 +13,9 @@ internal class Day1Test {
                |pqr3stu8vwx
                |a1b2c3d4e5f
                |treb7uchet
-            """
+            """.trimMargin()
         val expected = 142L
-        val actual = day1.part1(input.trimMargin().lines())
+        val actual = day1.part1(input.lines())
         assertEquals(expected, actual)
     }
 

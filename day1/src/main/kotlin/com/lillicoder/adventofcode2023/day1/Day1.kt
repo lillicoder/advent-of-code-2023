@@ -1,12 +1,13 @@
 package com.lillicoder.adventofcode2023.day1
 
-class Day1 {
-    fun main() {
-        val calibrationDocument = javaClass.classLoader.getResourceAsStream("input.txt")!!.reader().readLines()
-        println("[Part 1] The sum of calibration values is ${part1(calibrationDocument)}.")
-        println("[Part 2] The sum of calibration values is ${part2(calibrationDocument)}.")
-    }
+fun main() {
+    val day1 = Day1()
+    val calibrationDocument = CalibrationDocumentParser().parse("input.txt")
+    println("[Part 1] The sum of calibration values is ${day1.part1(calibrationDocument)}.")
+    println("[Part 2] The sum of calibration values is ${day1.part2(calibrationDocument)}.")
+}
 
+class Day1 {
     fun part1(document: List<String>) =
         document.sumOf { line ->
             "${line.find { it.isDigit() }}${line.findLast { it.isDigit() }}".toInt()
@@ -18,6 +19,15 @@ class Day1 {
     ) = document.sumOf { line ->
         finder.find(line)
     }.toLong()
+}
+
+class CalibrationDocumentParser {
+    /**
+     * Parses the calibration document from the file with the given filename.
+     * @param filename Filename.
+     * @return Calibration document.
+     */
+    fun parse(filename: String) = javaClass.classLoader.getResourceAsStream(filename)!!.reader().readLines()
 }
 
 /**
