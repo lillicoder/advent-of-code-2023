@@ -1,23 +1,24 @@
 package com.lillicoder.adventofcode2023.day7
 
 fun main() {
+    val day7 = Day7()
     val parser = HandParser()
-    val hands = HandParser().parse("input.txt")
+    val (hands, jokerHands) = parser.parseFile("input.txt")
+    println("[Normal] Total winnings for the given hands is ${day7.part1(hands)}.")
+    println("[Jokers] Total winnings for the given hands is ${day7.part2(jokerHands)}.")
+}
 
-    val calculator = WinningsCalculator()
-    val winnings = calculator.computeWinnings(hands)
-    println("[Normal] Total winnings for the given hands is $winnings.")
+class Day7 {
+    fun part1(hands: List<Hand>) = WinningsCalculator().computeWinnings(hands)
 
-    val jokerHands = parser.parseWithJokers("input.txt")
-    val jokerWinnings = calculator.computeWinnings(jokerHands)
-    println("[Jokers] Total winnings for the given hands is $jokerWinnings.")
+    fun part2(hands: List<Hand>) = WinningsCalculator().computeWinnings(hands)
 }
 
 /**
  * Represents a single card in a hand of a game of Camel Cards.
  */
 enum class Card(
-    private val symbol: String
+    private val symbol: String,
 ) {
     JOKER("J"),
     TWO("2"),
@@ -32,21 +33,21 @@ enum class Card(
     JACK("J"),
     QUEEN("Q"),
     KING("K"),
-    ACE("A");
+    ACE("A"), ;
 
     companion object {
-
         /**
          * Gets the [Card] enum matching the given symbol.
          * @param symbol Card symbol.
          * @param allowJokers True if 'J' should match [JOKER], false if 'J' should match [JACK].
          * @return Corresponding card.
          */
-        fun from(symbol: String, allowJokers: Boolean = false): Card {
-            return when (symbol) {
-                "J" -> if (allowJokers) JOKER else JACK
-                else -> entries.find { it.symbol == symbol }!!
-            }
+        fun from(
+            symbol: String,
+            allowJokers: Boolean = false,
+        ) = when (symbol) {
+            "J" -> if (allowJokers) JOKER else JACK
+            else -> entries.find { it.symbol == symbol }!!
         }
     }
 }
@@ -61,7 +62,7 @@ enum class Rank {
     THREE_OF_A_KIND,
     FULL_HOUSE,
     FOUR_OF_A_KIND,
-    FIVE_OF_A_KIND
+    FIVE_OF_A_KIND,
 }
 
 /**
@@ -70,15 +71,13 @@ enum class Rank {
 data class Hand(
     val cards: List<Card>,
     val bid: Int,
-    val rank: Rank
+    val rank: Rank,
 ) : Comparable<Hand> {
-
-    override fun compareTo(other: Hand): Int {
-        return when (val rankComparison = rank.compareTo(other.rank)) {
+    override fun compareTo(other: Hand) =
+        when (val rankComparison = rank.compareTo(other.rank)) {
             0 -> compareCards(other) // Same rank, sort by strongest card
             else -> rankComparison // Different rank, sort by rank
         }
-    }
 
     /**
      * Compares each card in this hand with the cards in the given [Hand].
@@ -102,51 +101,53 @@ data class Hand(
  * Calculates winnings for a given list of [Hand] in a game of Camel Cards.
  */
 class WinningsCalculator {
-
     /**
      * Determines the total winnings for the give list of [Hand].
      * @param hands Hands to evaluate.
      * @return Total winnings.
      */
-    fun computeWinnings(hands: List<Hand>): Long {
-        // Sort hands by rank and strength within rank
-        val sorted = hands.sorted()
-
-        // Hands are now sorted, just sum up the winnings per hand (rank * bid = winnings)
-        return sorted.mapIndexed { index, hand -> (index + 1) * hand.bid }.sum().toLong()
-    }
+    fun computeWinnings(hands: List<Hand>) =
+        hands.sorted().mapIndexed { index, hand ->
+            (index + 1) * hand.bid
+        }.sum().toLong()
 }
 
 /**
  * Parses one or more [Hand] from some input.
  */
 class HandParser {
-
     /**
-     * Parses the file with the given filename to a list of [Hand]. Jokers will be considered
-     * instead of Jacks.
+     * Parses the raw hands input to a pair of list of [Hand].
+     * @param raw Raw hands input.
+     * @return Hands parsed as no having [Card.JOKER] and hands parsed as having [Card.JOKER].
      */
-    fun parseWithJokers(filename: String) = parse(filename, true)
+    fun parse(raw: List<String>): Pair<List<Hand>, List<Hand>> {
+        val noJokers =
+            raw.map { line ->
+                val parts = line.split(" ")
+                val cards = parts[0].split("").filter { it.isNotEmpty() }.map { Card.from(it, false) }
+                val bid = parts[1].toInt()
+                val rank = rank(cards)
 
-    /**
-     * Parses the file with the given filename to a list of [Hand].
-     * @param filename Filename of the file to parse.
-     * @param shouldParseJokers True if this parser should treat hands as having Jokers, false otherwise.
-     * @return List of hand.
-     */
-    fun parse(filename: String, shouldParseJokers: Boolean = false): List<Hand> {
-        val hands = mutableListOf<Hand>()
-        javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
-            val parts = line.split(" ")
-            val cards = parts[0].split("").filter { it.isNotEmpty() }.map { Card.from(it, shouldParseJokers) }
-            val bid = parts[1].toInt()
-            val rank = rank(cards)
+                Hand(cards, bid, rank)
+            }
+        val jokers =
+            noJokers.map { hand ->
+                // Swap Jokers in for Jacks and recompute the rank
+                val cards = hand.cards.map { if (it == Card.JACK) Card.JOKER else it }
+                val rank = rank(cards)
+                Hand(cards, hand.bid, rank)
+            }
 
-            hands.add(Hand(cards, bid, rank))
-        }
-
-        return hands
+        return Pair(noJokers, jokers)
     }
+
+    /**
+     * Parses the file with the given filename to a pair of list of [Hand].
+     * @param filename Filename of the file to parse.
+     * @return Hands parsed as no having [Card.JOKER] and hands parsed as having [Card.JOKER].
+     */
+    fun parseFile(filename: String) = parse(javaClass.classLoader.getResourceAsStream(filename)!!.reader().readLines())
 
     /**
      * Determines the [Rank] of the given list of [Card].
@@ -172,7 +173,11 @@ class HandParser {
         return Rank.HIGH_CARD
     }
 
-    private fun isFiveOfAKind(frequency: Map<Card, Int>, jokerCount: Int, biggestCount: Int): Boolean {
+    private fun isFiveOfAKind(
+        frequency: Map<Card, Int>,
+        jokerCount: Int,
+        biggestCount: Int,
+    ): Boolean {
         // Case 1: no jokers, all the same card
         // 1 1 1 1 1
         val allSame = frequency.size == 1
@@ -185,7 +190,11 @@ class HandParser {
         return allSame || (jokerCount + biggestCount == frequency.values.sum())
     }
 
-    private fun isFourOfAKind(frequency: Map<Card, Int>, jokerCount: Int, biggestCount: Int): Boolean {
+    private fun isFourOfAKind(
+        frequency: Map<Card, Int>,
+        jokerCount: Int,
+        biggestCount: Int,
+    ): Boolean {
         // Case 1: no jokers, 4 of one kind of card (4 jokers makes 5 of a kind, so don't need to check that)
         // 1111 5
         val hasFourSameCards = frequency.values.find { it == 4 } != null
@@ -208,7 +217,11 @@ class HandParser {
             hasOneJokerAndThreeSameCards
     }
 
-    private fun isFullHouse(frequency: Map<Card, Int>, jokerCount: Int, biggestCount: Int): Boolean {
+    private fun isFullHouse(
+        frequency: Map<Card, Int>,
+        jokerCount: Int,
+        biggestCount: Int,
+    ): Boolean {
         // Case 1: no jokers, 3 of one kind of card, 2 of another
         // 111 55
         val hasThreeAndTwo = jokerCount == 0 && biggestCount == 3 && frequency.size == 2
@@ -220,7 +233,11 @@ class HandParser {
         return hasThreeAndTwo || hasOneJokerAndTwoPair
     }
 
-    private fun isThreeOfAKind(frequency: Map<Card, Int>, jokerCount: Int, biggestCount: Int): Boolean {
+    private fun isThreeOfAKind(
+        frequency: Map<Card, Int>,
+        jokerCount: Int,
+        biggestCount: Int,
+    ): Boolean {
         // Case 1: no jokers, 3 of one kind of card nd two other distinct cards
         // 111 5 9
         val hasThreeAndTwoOtherDistinct = jokerCount == 0 && biggestCount == 3 && frequency.size == 3
@@ -236,7 +253,11 @@ class HandParser {
         return hasThreeAndTwoOtherDistinct || hasOneJokerAndOnePair || hasTwoJokersAndThreeDistinct
     }
 
-    private fun isTwoPair(frequency: Map<Card, Int>, jokerCount: Int, biggestCount: Int): Boolean {
+    private fun isTwoPair(
+        frequency: Map<Card, Int>,
+        jokerCount: Int,
+        biggestCount: Int,
+    ): Boolean {
         // Case 1: no jokers, two pairs of cards with one extra distinct card
         // 11 55 9
         val hasTwoPairAndOneDistinct = jokerCount == 0 && biggestCount == 2 && frequency.size == 3
@@ -244,7 +265,11 @@ class HandParser {
         return hasTwoPairAndOneDistinct
     }
 
-    private fun isOnePair(frequency: Map<Card, Int>, jokerCount: Int, biggestCount: Int):Boolean {
+    private fun isOnePair(
+        frequency: Map<Card, Int>,
+        jokerCount: Int,
+        biggestCount: Int,
+    ): Boolean {
         // Case 1: no jokers, one pair and 3 distinct other cards
         // 11 5 6 9
         val hasOnePairAndThreeDistinct = jokerCount == 0 && biggestCount == 2 && frequency.size == 4
