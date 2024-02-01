@@ -33,6 +33,7 @@ class AlmanacParser {
     /**
      * Parses the raw almanac input to an equivalent [Almanac].
      * @param raw Raw almanac input.
+     * @param separator Line separator for the given input.
      * @return Almanac.
      */
     fun parse(
