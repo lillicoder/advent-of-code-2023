@@ -3,14 +3,16 @@ package com.lillicoder.adventofcode2023.day8
 import kotlin.math.max
 
 fun main() {
-    val network = NetworkParser().parse("input.txt")
-    val pathfinder = StepsCalculator()
+    val day8 = Day8()
+    val network = NetworkParser().parseFile("input.txt")
+    println("Total number of steps required to navigate the network is ${day8.part1(network)}.")
+    println("Total number of steps required to navigate the network for a ghost is ${day8.part2(network)}.")
+}
 
-    val steps = pathfinder.stepsRequiredToNavigateWholeNodes(network)
-    println("Total number of steps required to navigate the network is $steps.")
+class Day8 {
+    fun part1(network: Network) = Navigator().stepsRequiredToNavigateWholeNodes(network)
 
-    val partialSteps = pathfinder.stepsRequiredToNavigatePartialNodes(network)
-    println("Total number of steps required to navigate the network for a ghost is $partialSteps.")
+    fun part2(network: Network) = Navigator().stepsRequiredToNavigatePartialNodes(network)
 }
 
 /**
@@ -20,7 +22,7 @@ fun main() {
  */
 data class Network(
     val instructions: String,
-    val nodes: Map<String, Node>
+    val nodes: Map<String, Node>,
 )
 
 /**
@@ -32,14 +34,13 @@ data class Network(
 data class Node(
     val id: String,
     var left: String? = null,
-    var right: String? = null
+    var right: String? = null,
 )
 
 /**
  * Finds the number of steps required for navigating a [Network].
  */
-class StepsCalculator {
-
+class Navigator {
     /**
      * Determines the number of steps required to navigate the given [Network]. Nodes
      * are treated as whole IDs.
@@ -59,10 +60,11 @@ class StepsCalculator {
             // Until we find ZZZ, loop over each instruction and track to the next node
             instructions.forEach { instruction ->
                 // Get the next node ID
-                val nodeId = when(instruction) {
-                    "L" -> node.left!!
-                    else -> node.right!!
-                }
+                val nodeId =
+                    when (instruction) {
+                        "L" -> node.left!!
+                        else -> node.right!!
+                    }
                 // Navigate to next node
                 node = network.nodes[nodeId]!!
 
@@ -72,7 +74,6 @@ class StepsCalculator {
                 steps++
             }
         } while (node.id.contentEquals("ZZZ").not())
-
 
         println("[Whole] Final node discovered in $steps steps. [node=$node]")
         return steps
@@ -106,15 +107,17 @@ class StepsCalculator {
         do {
             instructions.forEach { instruction ->
                 // Navigate all nodes per instruction
-                nodes = nodes.map { node ->
-                    // Get the next node ID
-                    val nodeId = when(instruction) {
-                        "L" -> node.left!!
-                        else -> node.right!!
-                    }
-                    // Navigate to next node
-                    network.nodes[nodeId]!!
-                }.toMutableList()
+                nodes =
+                    nodes.map { node ->
+                        // Get the next node ID
+                        val nodeId =
+                            when (instruction) {
+                                "L" -> node.left!!
+                                else -> node.right!!
+                            }
+                        // Navigate to next node
+                        network.nodes[nodeId]!!
+                    }.toMutableList()
 
                 // Update steps by 1
                 steps++
@@ -154,7 +157,10 @@ class StepsCalculator {
      * @param second Second number.
      * @return least common multiple.
      */
-    private fun leastCommonMultiple(first: Long, second: Long): Long {
+    private fun leastCommonMultiple(
+        first: Long,
+        second: Long,
+    ): Long {
         val largest = max(first, second)
         val max = first * second
 
@@ -171,25 +177,27 @@ class StepsCalculator {
 /**
  * Parser for [Network] instances.
  */
-class NetworkParser  {
-
+class NetworkParser {
     /**
-     * Parses the file with the given filename to a [Network].
-     * @param filename Filename.
+     * Parses the given raw network input to an equivalent [Network].
+     * @param raw Raw network input.
+     * @param separator Line separator for the given input.
      * @return Network.
      */
-    fun parse(filename: String): Network {
-        val input = javaClass.classLoader.getResourceAsStream(filename)!!.reader().readText()
-        val parts = input.split("\r\n\r\n")
+    fun parse(
+        raw: String,
+        separator: String = System.lineSeparator(),
+    ): Network {
+        val parts = raw.split("$separator$separator")
         val instructions = parts[0] // First line is instructions
 
         val nodes = mutableMapOf<String, Node>()
-        val rawNodes = parts[1].split("\r\n").sorted() // Second part is a line-separated list of nodes
-        rawNodes.forEach { raw ->
+        val rawNodes = parts[1].split(separator).sorted() // Second part is a line-separated list of nodes
+        rawNodes.forEach { node ->
             // Node format is ID = (leftId, rightId)
             // e.g. AAA = (BBB, CCC)
-            val id = raw.substringBefore("=").trim()
-            val childIds = raw.substringAfter("= (").dropLast(1) // Removes parentheses
+            val id = node.substringBefore("=").trim()
+            val childIds = node.substringAfter("= (").dropLast(1) // Removes parentheses
             val leftId = childIds.substringBefore(",")
             val rightId = childIds.substringAfter(", ")
 
@@ -205,4 +213,11 @@ class NetworkParser  {
 
         return Network(instructions, nodes)
     }
+
+    /**
+     * Parses the file with the given filename to a [Network].
+     * @param filename Filename.
+     * @return Network.
+     */
+    fun parseFile(filename: String) = parse(javaClass.classLoader.getResourceAsStream(filename)!!.reader().readText())
 }
