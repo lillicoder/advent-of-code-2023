@@ -18,12 +18,22 @@ data class Grid<T>(
      * @param node Node.
      * @return Adjacent nodes.
      */
-    fun adjacent(node: Node<T>) =
+    fun adjacent(node: Node<T>) = adjacent(node) { _, _ -> true }
+
+    /**
+     * Gets the list of [Node] adjacent to the given node that satisfy the given predicate.
+     * A node is considered adjacent if it is directly above, below, to the left of, or to the right of
+     * the given node.
+     * @param node Node.
+     * @param predicate Predicate to check.
+     * @return Adjacent nodes.
+     */
+    fun adjacent(node: Node<T>, predicate: (Node<T>, Direction) -> Boolean) =
         listOfNotNull(
-            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() - 1),
-            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt()),
-            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt()),
-            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() + 1),
+            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() - 1)?.takeIf { predicate(it, Direction.LEFT) },
+            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.UP) },
+            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.DOWN) },
+            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() + 1)?.takeIf { predicate(it, Direction.RIGHT) }
         )
 
     /**
@@ -145,44 +155,6 @@ data class Grid<T>(
             nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() + 1),
             nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() + 1),
         )
-
-    /**
-     * Finds the path of [Node] from the starting node to the ending node.
-     * @param start Starting node.
-     * @param end Ending node.
-     * @return Path or null if there is no path between the given nodes.
-     */
-    fun path(start: Node<T>, end: Node<T>): List<Node<T>>? {
-        val queue = ArrayDeque<Node<T>>()
-        val path = mutableListOf<Node<T>>()
-        val explored = mutableMapOf<Node<T>, Node<T>>()
-
-        queue.add(start)
-        while (queue.isNotEmpty()) {
-            val next = queue.removeFirst()
-            adjacent(next).forEach { adjacent ->
-                if (adjacent == end) {
-                    // Path found
-                    var traceback = next
-                    while (traceback != start) {
-                        path.add(traceback)
-                        traceback = explored[traceback]!!
-                    }
-
-                    // Exit
-                    queue.clear()
-                    return@forEach
-                }
-
-                if (!explored.contains(adjacent)) {
-                    explored[adjacent] = next
-                    queue.add(adjacent)
-                }
-            }
-        }
-
-        return path.ifEmpty { null }
-    }
 
     /**
      * Gets the row for this grid at the given index.

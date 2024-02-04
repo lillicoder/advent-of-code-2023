@@ -1,6 +1,6 @@
 dependencies {
     implementation(libs.kotlin.stdlib)
-    implementation(libs.kotlin.test)
+    testImplementation(libs.kotlin.test)
 }
 
 tasks.test {
