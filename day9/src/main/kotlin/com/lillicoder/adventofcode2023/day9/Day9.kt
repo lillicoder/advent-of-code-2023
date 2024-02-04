@@ -1,14 +1,16 @@
 package com.lillicoder.adventofcode2023.day9
 
 fun main() {
+    val day9 = Day9()
     val readings = ReadingsParser().parse("input.txt")
+    println("The sum of all next predictions for all sequences is ${day9.part1(readings)}.")
+    println("The sum of all previous predictions for all sequences is ${day9.part2(readings)}.")
+}
 
-    val predictor = ReadingsPredictor()
-    val proceedingSum = predictor.sumAllProceedingPredictions(readings)
-    println("The sum of all next predictions for all sequences is $proceedingSum.")
+class Day9 {
+    fun part1(readings: List<List<Long>>) = ReadingsPredictor().sumAllProceedingPredictions(readings)
 
-    val precedingSum = predictor.sumAllPrecedingPredictions(readings)
-    println("The sum of all previous predictions for all sequences is $precedingSum.")
+    fun part2(readings: List<List<Long>>) = ReadingsPredictor().sumAllPrecedingPredictions(readings)
 }
 
 class ReadingsPredictor {
@@ -70,19 +72,19 @@ class ReadingsPredictor {
 
 class ReadingsParser {
 
+    fun parse(raw: List<String>) =
+        raw.map { line ->
+            line.split(" ").filter {
+                it.isNotEmpty()
+            }.map {
+                it.toLong()
+            }
+        }
+
     /**
      * Parses the file with the given filename in a list of reading sequences.
      * @param filename Filename.
      * @return List of reading sequences.
      */
-    fun parse(filename: String): List<List<Long>> {
-        val readings = mutableListOf<List<Long>>()
-
-        javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
-            val sequence = line.split(" ").filter { it.isNotEmpty() }.map { it.toLong() }
-            readings.add(sequence)
-        }
-
-        return readings
-    }
+    fun parse(filename: String) = parse(javaClass.classLoader.getResourceAsStream(filename)!!.reader().readLines())
 }
