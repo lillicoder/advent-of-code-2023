@@ -3,25 +3,27 @@ package com.lillicoder.adventofcode2023.day12
 import kotlin.math.min
 
 fun main() {
+    val day12 = Day12()
     val springs = SpringsParser().parse("input.txt")
-    val calculator = SpringPermutationCalculator()
-    val arrangements = calculator.sumArrangements(springs)
-    println("The number of valid arrangements for factor 1 is $arrangements.")
+    println("The number of valid arrangements for factor 1 is ${day12.part1(springs)}.")
+    println("The number of valid arrangements for factor 5 is ${day12.part2(springs)}.")
+}
 
-    val foldedArrangements = calculator.sumArrangements(springs, 5)
-    println("The number of valid arrangements for factor 5 is $foldedArrangements.")
+class Day12 {
+    fun part1(springs: List<Row>) = SpringPermutationCalculator().sumArrangements(springs)
+
+    fun part2(springs: List<Row>) = SpringPermutationCalculator().sumArrangements(springs, 5)
 }
 
 /**
  * Represents a row of springs and their associated pattern of contiguous broken springs.
  */
-class SpringRow(
+class Row(
     val springs: String,
-    val pattern: List<Int>
+    val pattern: List<Int>,
 )
 
 class SpringPermutationCalculator {
-
     private val damaged = '#'
     private val operational = '.'
     private val unknown = '?'
@@ -29,12 +31,15 @@ class SpringPermutationCalculator {
     private val cache = mutableMapOf<String, Long>()
 
     /**
-     * Finds all valid arrangements of each of the given [SpringRow] and sums them.
+     * Finds all valid arrangements of each of the given [Row] and sums them.
      * @param rows Rows to evaluate.
      * @param factor Fold factor. Defaults to 1.
      * @return Sum of valid arrangements.
      */
-    fun sumArrangements(rows: List<SpringRow>, factor: Int = 1) = rows.sumOf {
+    fun sumArrangements(
+        rows: List<Row>,
+        factor: Int = 1,
+    ) = rows.sumOf {
         var expandedSprings = it.springs
         val expandedPattern = it.pattern.toMutableList()
 
@@ -52,12 +57,18 @@ class SpringPermutationCalculator {
      * @param pattern Pattern of contiguous blocks of broken springs.
      * @return Number of valid arrangements.
      */
-    private fun arrangements(springs: String, pattern: List<Int>): Long {
+    private fun arrangements(
+        springs: String,
+        pattern: List<Int>,
+    ): Long {
         val key = "$springs|${pattern.joinToString(",")}"
         return cache[key] ?: computeArrangements(springs, pattern).apply { cache[key] = this }
     }
 
-    private fun computeArrangements(springs: String, pattern: List<Int>): Long {
+    private fun computeArrangements(
+        springs: String,
+        pattern: List<Int>,
+    ): Long {
         // Case 1 - no more patterns to check; spring must not have anything damaged as we've exhausted
         // available damaged gear blocks
         if (pattern.isEmpty()) return if (springs.contains(damaged)) 0L else 1L
@@ -97,21 +108,18 @@ class SpringPermutationCalculator {
 }
 
 class SpringsParser {
-
-    /**
-     * Parses the file with the given filename to a list of [SpringRow].
-     * @param filename Filename.
-     * @return Parsed spring rows.
-     */
-    fun parse(filename: String): List<SpringRow> {
-        val conditions = mutableListOf<SpringRow>()
-        javaClass.classLoader.getResourceAsStream(filename)!!.reader().forEachLine { line ->
+    fun parse(raw: List<String>) =
+        raw.map { line ->
             val parts = line.split(" ")
             val springs = parts[0]
             val pattern = parts[1].split(",").map { it.toInt() }
-            conditions.add(SpringRow(springs, pattern))
+            Row(springs, pattern)
         }
 
-        return conditions
-    }
+    /**
+     * Parses the file with the given filename to a list of [Row].
+     * @param filename Filename.
+     * @return Parsed spring rows.
+     */
+    fun parse(filename: String) = parse(javaClass.classLoader.getResourceAsStream(filename)!!.reader().readLines())
 }
