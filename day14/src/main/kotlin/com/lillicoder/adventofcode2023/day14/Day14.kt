@@ -1,59 +1,62 @@
 package com.lillicoder.adventofcode2023.day14
 
+import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
 import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
 
 fun main() {
-    // Part 1
-    val grid = GridParser().parse("input.txt") { it }
-    val load = load(grid, 1, mutableListOf(Tilter.Direction.NORTH))
-    println("The total load for a single tilt to the north is $load.")
-
-    // Part 2
-    val cycledLoad = load(grid)
-    println("The total load for a 1000000000 cycles is $cycledLoad.")
+    val day14 = Day14()
+    val grid = GridParser().parse("input.txt")
+    println("The total load for a single tilt to the north is ${day14.part1(grid)}.")
+    println("The total load for a 1000000000 cycles is ${day14.part2(grid)}.")
 }
 
-/**
- * Finds the load for the given [Grid].
- * @param grid Grid to evaluate.
- * @return Load.
- */
-fun load(
-    grid: Grid<String>,
-    cycles: Int = 1000000000,
-    order: List<Tilter.Direction> = mutableListOf(
-        Tilter.Direction.NORTH,
-        Tilter.Direction.WEST,
-        Tilter.Direction.SOUTH,
-        Tilter.Direction.EAST
-    )
-): Long {
-    val cache = mutableMapOf<String, Int>()
-    val tilter = Tilter()
-    val calculator = LoadCalculator()
+class Day14 {
+    fun part1(grid: Grid<String>) = load(grid, 1, mutableListOf(Direction.UP))
 
-    var tilted = grid
-    repeat(cycles) { cycle ->
-        val key = tilted.toString()
-        if (key in cache) {
-            val distance = cycle - cache[key]!!
-            val remaining = (cycles - cycle) % distance
-            repeat(remaining) { tilted = tilter.tiltSequence(tilted, order) }
+    fun part2(grid: Grid<String>) = load(grid)
 
-            return calculator.load(tilted)
+    /**
+     * Finds the load for the given [Grid].
+     * @param grid Grid to evaluate.
+     * @return Load.
+     */
+    private fun load(
+        grid: Grid<String>,
+        cycles: Int = 1000000000,
+        order: List<Direction> =
+            mutableListOf(
+                Direction.UP,
+                Direction.LEFT,
+                Direction.DOWN,
+                Direction.RIGHT,
+            ),
+    ): Long {
+        val cache = mutableMapOf<String, Int>()
+        val tilter = Tilter()
+        val calculator = LoadCalculator()
+
+        var tilted = grid
+        repeat(cycles) { cycle ->
+            val key = tilted.toString()
+            if (key in cache) {
+                val distance = cycle - cache[key]!!
+                val remaining = (cycles - cycle) % distance
+                repeat(remaining) { tilted = tilter.tiltSequence(tilted, order) }
+
+                return calculator.load(tilted)
+            }
+
+            cache[key] = cycle
+            tilted = tilter.tiltSequence(tilted, order)
         }
 
-        cache[key] = cycle
-        tilted = tilter.tiltSequence(tilted, order)
+        return calculator.load(tilted)
     }
-
-    return calculator.load(tilted)
 }
 
 class LoadCalculator {
-
     /**
      * Calculates the load for the given [Grid].
      * @param grid Grid to evaluate.
@@ -61,7 +64,7 @@ class LoadCalculator {
      */
     fun load(grid: Grid<String>): Long {
         var load = 0L
-        grid.forEachRowIndexed{ index, row ->
+        grid.forEachRowIndexed { index, row ->
             val spheres = row.count { it.value == "O" }
             load += spheres * (grid.height - index)
         }
@@ -71,21 +74,16 @@ class LoadCalculator {
 }
 
 class Tilter {
-
-    enum class Direction {
-        EAST,
-        NORTH,
-        SOUTH,
-        WEST
-    }
-
     /**
      * Tilts the given [Grid] with the given sequence of [Direction].
      * @param grid Grid to tilt.
      * @param directions Directions to tilt.
      * @return Tilted grid.
      */
-    fun tiltSequence(grid: Grid<String>, directions: List<Direction>): Grid<String> {
+    fun tiltSequence(
+        grid: Grid<String>,
+        directions: List<Direction>,
+    ): Grid<String> {
         var tilted = grid
         directions.forEach { tilted = tilt(tilted, it) }
 
@@ -98,10 +96,13 @@ class Tilter {
      * @param direction Direction to tilt.
      * @return Tilted grid..
      */
-    private fun tilt(grid: Grid<String>, direction: Direction): Grid<String> {
+    private fun tilt(
+        grid: Grid<String>,
+        direction: Direction,
+    ): Grid<String> {
         return when (direction) {
-            Direction.EAST, Direction.WEST -> tiltRows(grid, direction)
-            Direction.NORTH, Direction.SOUTH -> tiltColumns(grid, direction)
+            Direction.RIGHT, Direction.LEFT -> tiltRows(grid, direction)
+            Direction.UP, Direction.DOWN -> tiltColumns(grid, direction)
         }
     }
 
@@ -111,7 +112,10 @@ class Tilter {
      * @param direction Direction to tilt.
      * @return Tilted grid.
      */
-    private fun tiltColumns(grid: Grid<String>, direction: Direction): Grid<String> {
+    private fun tiltColumns(
+        grid: Grid<String>,
+        direction: Direction,
+    ): Grid<String> {
         val tilted = mutableListOf<String>()
 
         grid.forEachColumn { column ->
@@ -121,16 +125,19 @@ class Tilter {
             val processed = mutableListOf<String>()
             raw.forEach { chunk ->
                 // Sort this chunk to roll the spheres
-                val sorted = chunk.split("").filter { it.isNotEmpty() }.sortedWith(
-                    Comparator { node, other ->
-                        if (node == other) { return@Comparator 0 }
-                        return@Comparator when (node) {
-                            "O" -> if (direction == Direction.NORTH) -1 else 1
-                            "." -> if (direction == Direction.NORTH) 1 else -1
-                            else -> 0
-                        }
-                    }
-                )
+                val sorted =
+                    chunk.split("").filter {
+                        it.isNotEmpty()
+                    }.sortedWith(
+                        Comparator { node, other ->
+                            if (node == other) return@Comparator 0
+                            return@Comparator when (node) {
+                                "O" -> if (direction == Direction.UP) -1 else 1
+                                "." -> if (direction == Direction.UP) 1 else -1
+                                else -> 0
+                            }
+                        },
+                    )
 
                 // Save the chunk
                 processed.add(sorted.joinToString(""))
@@ -157,7 +164,10 @@ class Tilter {
      * @param direction Direction to tilt.
      * @return Tilted grid.
      */
-    private fun tiltRows(grid: Grid<String>, direction: Direction): Grid<String> {
+    private fun tiltRows(
+        grid: Grid<String>,
+        direction: Direction,
+    ): Grid<String> {
         val tilted = mutableListOf<String>()
 
         grid.forEachRow { row ->
@@ -167,16 +177,19 @@ class Tilter {
             val processed = mutableListOf<String>()
             raw.forEach { chunk ->
                 // Sort this chunk to roll the spheres
-                val sorted = chunk.split("").filter { it.isNotEmpty() }.sortedWith(
-                    Comparator { node, other ->
-                        if (node == other) { return@Comparator 0 }
-                        return@Comparator when (node) {
-                            "O" -> if (direction == Direction.WEST) -1 else 1
-                            "." -> if (direction == Direction.WEST) 1 else -1
-                            else -> 0
-                        }
-                    }
-                )
+                val sorted =
+                    chunk.split("").filter {
+                        it.isNotEmpty()
+                    }.sortedWith(
+                        Comparator { node, other ->
+                            if (node == other) return@Comparator 0
+                            return@Comparator when (node) {
+                                "O" -> if (direction == Direction.LEFT) -1 else 1
+                                "." -> if (direction == Direction.LEFT) 1 else -1
+                                else -> 0
+                            }
+                        },
+                    )
 
                 // Save the chunk
                 processed.add(sorted.joinToString(""))
