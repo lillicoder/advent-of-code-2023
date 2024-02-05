@@ -20,18 +20,31 @@ class GridParser {
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grid.
      */
-    fun <T> parse(filename: String, converter: (String) -> T): Grid<T> = parseList(filename, converter).first()
+    fun <T> parse(filename: String, converter: (String) -> T) = parseFile(filename, converter = converter).first()
 
     /**
-     * Parses one or more [Grid] from the file corresponding to the given file name. File will be pulled from resources.
+     * Parses a list of [Grid] from the file corresponding to the given file name. File will be pulled from resources.
      * @param filename Filename.
+     * @param separator Line separator for the given file.
+     * @return Parsed grids.
+     */
+    fun parseFile(
+        filename: String,
+        separator: String = System.lineSeparator()
+    ): List<Grid<String>> = parseFile(filename, separator) { it }
+
+    /**
+     * Parses a list of [Grid] from the file corresponding to the given file name. File will be pulled from resources.
+     * @param filename Filename.
+     * @param separator Line separator for the given file.
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grids.
      */
-    fun <T> parseList(filename: String, converter: (String) -> T): List<Grid<T>> {
-        val input = javaClass.classLoader.getResourceAsStream(filename)!!.reader().readText()
-        return input.split("\r\n\r\n").map { parseGrid(it, converter = converter) }
-    }
+    fun <T> parseFile(
+        filename: String,
+        separator: String = System.lineSeparator(),
+        converter: (String) -> T
+    ) = parseGrids(javaClass.classLoader.getResourceAsStream(filename)!!.reader().readText(), separator, converter)
 
     /**
      * Parses a [Grid] from the given raw input.
@@ -67,4 +80,28 @@ class GridParser {
 
         return Grid(grid)
     }
+
+    /**
+     * Parses a list of [Grid] from the given raw input.
+     * @param raw Raw input.
+     * @param separator Line separator for the given input.
+     * @return Parsed grids.
+     */
+    fun parseGrids(
+        raw: String,
+        separator: String = System.lineSeparator()
+    ) = parseGrids(raw, separator) { it }
+
+    /**
+     * Parses a list of [Grid] from the given raw input.
+     * @param raw Raw input.
+     * @param separator Line separator for the given input.
+     * @param converter Function to convert parsed nodes to their expected type.
+     * @return Parsed grids.
+     */
+    fun <T> parseGrids(
+        raw: String,
+        separator: String = System.lineSeparator(),
+        converter: (String) -> T
+    ) = raw.split("$separator$separator").map { parseGrid(it, separator, converter) }
 }
