@@ -7,7 +7,7 @@ import com.lillicoder.adventofcode2023.grids.Node
 
 fun main() {
     val day14 = Day14()
-    val grid = GridParser().parse("input.txt")
+    val grid = GridParser().parseFile("input.txt").first()
     println("The total load for a single tilt to the north is ${day14.part1(grid)}.")
     println("The total load for a 1000000000 cycles is ${day14.part2(grid)}.")
 }

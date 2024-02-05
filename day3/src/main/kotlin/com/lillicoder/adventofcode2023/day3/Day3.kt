@@ -98,7 +98,7 @@ class EngineSchematicParser(
      * @return Engine schematic.
      */
     fun parse(raw: List<String>): Schematic {
-        val grid = gridParser.parseGrid(raw.joinToString("\r\n")) { it }
+        val grid = gridParser.parseGrid(raw.joinToString(System.lineSeparator()))
         val numbers = mutableListOf<List<Node<String>>>()
 
         val numberBuffer = mutableListOf<Node<String>>()

@@ -1,7 +1,5 @@
 package com.lillicoder.adventofcode2023.grids
 
-import javax.swing.JPopupMenu.Separator
-
 /**
  * Parser for creating a [Grid] from a file.
  */
@@ -12,15 +10,7 @@ class GridParser {
      * @param filename Filename.
      * @return Parsed grid.
      */
-    fun parse(filename: String) = parse(filename) { it }
-
-    /**
-     * Parses a [Grid] from the file corresponding to the given file name. File will be pulled from resources.
-     * @param filename Filename.
-     * @param converter Function to convert parsed nodes to their expected type.
-     * @return Parsed grid.
-     */
-    fun <T> parse(filename: String, converter: (String) -> T) = parseFile(filename, converter = converter).first()
+    fun parseFile(filename: String) = parseFile(filename) { it }
 
     /**
      * Parses a list of [Grid] from the file corresponding to the given file name. File will be pulled from resources.
@@ -99,7 +89,7 @@ class GridParser {
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grids.
      */
-    fun <T> parseGrids(
+    private fun <T> parseGrids(
         raw: String,
         separator: String = System.lineSeparator(),
         converter: (String) -> T

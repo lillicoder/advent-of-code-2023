@@ -8,7 +8,7 @@ import kotlin.math.abs
 
 fun main() {
     val day10 = Day10()
-    val maze = PipeMaze(GridParser().parse("input.txt") { it })
+    val maze = PipeMaze(GridParser().parseFile("input.txt").first())
     println("The max distance for the loop in the pipe maze is ${day10.part1(maze)}.")
     println("The area of enclosures spaces is ${day10.part2(maze)}.")
 }
