@@ -10,6 +10,13 @@ class GridParser {
     /**
      * Parses a [Grid] from the file corresponding to the given file name. File will be pulled from resources.
      * @param filename Filename.
+     * @return Parsed grid.
+     */
+    fun parse(filename: String) = parse(filename) { it }
+
+    /**
+     * Parses a [Grid] from the file corresponding to the given file name. File will be pulled from resources.
+     * @param filename Filename.
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grid.
      */
@@ -29,6 +36,15 @@ class GridParser {
     /**
      * Parses a [Grid] from the given raw input.
      * @param raw Raw input.
+     * @param separator Line separator for the given input.
+     * @return Parsed grid.
+     */
+    fun parseGrid(raw: String, separator: String = System.lineSeparator()) = parseGrid(raw, separator) { it }
+
+    /**
+     * Parses a [Grid] from the given raw input.
+     * @param raw Raw input.
+     * @param separator Line separator for the given input.
      * @param converter Function to convert parsed nodes to their expected type.
      * @return Parsed grid.
      */
