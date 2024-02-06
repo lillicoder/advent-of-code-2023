@@ -8,9 +8,8 @@ import kotlin.math.abs
 data class Grid<T>(
     private val nodes: List<List<Node<T>>>,
     val width: Int = nodes[0].size,
-    val height: Int = nodes.size
+    val height: Int = nodes.size,
 ) {
-
     /**
      * Gets the list of [Node] adjacent to the given node. A node is considered
      * adjacent if it is directly above, below, to the left of, or to the right of
@@ -28,13 +27,15 @@ data class Grid<T>(
      * @param predicate Predicate to check.
      * @return Adjacent nodes.
      */
-    fun adjacent(node: Node<T>, predicate: (Node<T>, Direction) -> Boolean) =
-        listOfNotNull(
-            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() - 1)?.takeIf { predicate(it, Direction.LEFT) },
-            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.UP) },
-            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.DOWN) },
-            nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() + 1)?.takeIf { predicate(it, Direction.RIGHT) }
-        )
+    fun adjacent(
+        node: Node<T>,
+        predicate: (Node<T>, Direction) -> Boolean,
+    ) = listOfNotNull(
+        nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() - 1)?.takeIf { predicate(it, Direction.LEFT) },
+        nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.UP) },
+        nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.DOWN) },
+        nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() + 1)?.takeIf { predicate(it, Direction.RIGHT) },
+    )
 
     /**
      * Gets the column for this grid at the given index.
@@ -42,7 +43,10 @@ data class Grid<T>(
      * @return Column nodes.
      * @throws IndexOutOfBoundsException
      */
-    fun column(index: Int) = nodes.map { it[index] }
+    fun column(index: Int) =
+        nodes.map {
+            it[index]
+        }
 
     /**
      * Gets the Manhattan distance between the given starting and ending nodes.
@@ -50,7 +54,10 @@ data class Grid<T>(
      * @param end End node.
      * @return Manhattan distance.
      */
-    fun distance(start: Node<T>, end: Node<T>) = abs(start.x - end.x) + abs(start.y - end.y)
+    fun distance(
+        start: Node<T>,
+        end: Node<T>,
+    ) = abs(start.x - end.x) + abs(start.y - end.y)
 
     /**
      * Finds the first [Node] that satisfies the given predicate.
@@ -71,11 +78,12 @@ data class Grid<T>(
      * Performs the given action on each node in this grid.
      * @param action Action to perform.
      */
-    fun forEach(action: (Node<T>) -> Unit) = nodes.forEach {
-        it.forEach { node ->
-            action(node)
+    fun forEach(action: (Node<T>) -> Unit) =
+        nodes.forEach {
+            it.forEach { node ->
+                action(node)
+            }
         }
-    }
 
     /**
      * Performs the given action on each column in this grid.
@@ -101,15 +109,19 @@ data class Grid<T>(
      * Performs the given action on each row in this grid.
      * @param action Action to perform.
      */
-    fun forEachRow(action: (List<Node<T>>) -> Unit) = nodes.forEach { action(it) }
+    fun forEachRow(action: (List<Node<T>>) -> Unit) =
+        nodes.forEach {
+            action(it)
+        }
 
     /**
      * Performs the given action on each row in this grid.
      * @param action Action to perform.
      */
-    fun forEachRowIndexed(
-        action: (Int, List<Node<T>>) -> Unit
-    ) = nodes.forEachIndexed { index, node -> action(index, node)}
+    fun forEachRowIndexed(action: (Int, List<Node<T>>) -> Unit) =
+        nodes.forEachIndexed { index, node ->
+            action(index, node)
+        }
 
     /**
      * Filters all [Node] and returns a list of nodes matching the given predicate.
@@ -149,12 +161,13 @@ data class Grid<T>(
      * @return Neighboring nodes.
      */
     fun neighbors(node: Node<T>) =
-        adjacent(node) + listOfNotNull(
-            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() - 1),
-            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() - 1),
-            nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() + 1),
-            nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() + 1),
-        )
+        adjacent(node) +
+            listOfNotNull(
+                nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() - 1),
+                nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() - 1),
+                nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt() + 1),
+                nodes.getOrNull(node.y.toInt() + 1)?.getOrNull(node.x.toInt() + 1),
+            )
 
     /**
      * Gets the row for this grid at the given index.
@@ -164,45 +177,10 @@ data class Grid<T>(
      */
     fun row(index: Int) = nodes[index]
 
-    /**
-     * Returns a list of snapshots of the window of the given size sliding along the
-     * columns of this grid.
-     * @param size Window size.
-     * @param step Step size.
-     * @return Windowed columns.
-     */
-    fun windowedColumns(size: Int, step: Int = 1) : List<List<List<Node<T>>>> {
-        val result = ArrayList<List<List<Node<T>>>>()
-
-        var start = 0
-        while (start < width - 1) {
-            var window = mutableListOf<List<Node<T>>>()
-            for (index in 0..<size) {
-                val next = start + index
-                window.add(column(next))
+    override fun toString() =
+        nodes.joinToString("\n") {
+            it.joinToString("") { node ->
+                node.value.toString()
             }
-
-            result.add(window)
-            window = mutableListOf()
-
-            start += step
         }
-
-        return result
-    }
-
-    /**
-     * Returns a list of snapshots of the window of the given size sliding along the
-     * rows of this grid.
-     * @param size Window size.
-     * @param step Step size.
-     * @return Windowed rows.
-     */
-    fun windowedRows(size: Int, step: Int = 1) = nodes.windowed(size, step)
-
-    override fun toString() = nodes.joinToString("\n") {
-        it.joinToString("") {
-            node -> node.value.toString()
-        }
-    }
 }

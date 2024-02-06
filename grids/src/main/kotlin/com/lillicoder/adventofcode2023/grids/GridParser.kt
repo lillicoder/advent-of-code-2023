@@ -4,7 +4,6 @@ package com.lillicoder.adventofcode2023.grids
  * Parser for creating a [Grid] from a file.
  */
 class GridParser {
-
     /**
      * Parses a [Grid] from the file corresponding to the given file name. File will be pulled from resources.
      * @param filename Filename.
@@ -20,7 +19,7 @@ class GridParser {
      */
     fun parseFile(
         filename: String,
-        separator: String = System.lineSeparator()
+        separator: String = System.lineSeparator(),
     ): List<Grid<String>> = parseFile(filename, separator) { it }
 
     /**
@@ -33,7 +32,7 @@ class GridParser {
     fun <T> parseFile(
         filename: String,
         separator: String = System.lineSeparator(),
-        converter: (String) -> T
+        converter: (String) -> T,
     ) = parseGrids(javaClass.classLoader.getResourceAsStream(filename)!!.reader().readText(), separator, converter)
 
     /**
@@ -42,7 +41,10 @@ class GridParser {
      * @param separator Line separator for the given input.
      * @return Parsed grid.
      */
-    fun parseGrid(raw: String, separator: String = System.lineSeparator()) = parseGrid(raw, separator) { it }
+    fun parseGrid(
+        raw: String,
+        separator: String = System.lineSeparator(),
+    ) = parseGrid(raw, separator) { it }
 
     /**
      * Parses a [Grid] from the given raw input.
@@ -54,7 +56,7 @@ class GridParser {
     fun <T> parseGrid(
         raw: String,
         separator: String = System.lineSeparator(),
-        converter: (String) -> T
+        converter: (String) -> T,
     ): Grid<T> {
         val grid = mutableListOf<MutableList<Node<T>>>()
 
@@ -79,7 +81,7 @@ class GridParser {
      */
     fun parseGrids(
         raw: String,
-        separator: String = System.lineSeparator()
+        separator: String = System.lineSeparator(),
     ) = parseGrids(raw, separator) { it }
 
     /**
@@ -92,6 +94,6 @@ class GridParser {
     private fun <T> parseGrids(
         raw: String,
         separator: String = System.lineSeparator(),
-        converter: (String) -> T
+        converter: (String) -> T,
     ) = raw.split("$separator$separator").map { parseGrid(it, separator, converter) }
 }

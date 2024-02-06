@@ -6,5 +6,5 @@ package com.lillicoder.adventofcode2023.grids
 data class Node<T>(
     val x: Long,
     val y: Long,
-    val value: T
+    val value: T,
 )
