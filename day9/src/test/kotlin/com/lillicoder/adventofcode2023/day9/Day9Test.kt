@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 internal class Day9Test {
-
     private val input =
         """0 3 6 9 12 15
            |1 3 6 10 15 21

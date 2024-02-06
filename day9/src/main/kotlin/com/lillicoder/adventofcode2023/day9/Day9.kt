@@ -14,7 +14,6 @@ class Day9 {
 }
 
 class ReadingsPredictor {
-
     /**
      * Finds all predicted values that proceed the last reading in each of the given sequences
      * and sums them.
@@ -71,7 +70,6 @@ class ReadingsPredictor {
 }
 
 class ReadingsParser {
-
     fun parse(raw: List<String>) =
         raw.map { line ->
             line.split(" ").filter {
