@@ -52,25 +52,27 @@ data class Grid<T>(
     }
 
     /**
-     * Gets the list of [Node] adjacent to the given node. A node is considered
-     * adjacent if it is directly above, below, to the left of, or to the right of
-     * the given node.
+     * Gets the [Node] adjacent to the given node in the given [Direction].
      * @param node Node.
-     * @return Adjacent nodes.
+     * @param direction Direction.
+     * @return Adjacent node.
      */
-    fun adjacent(node: Node<T>) = adjacent(node) { _, _ -> true }
+    fun adjacent(
+        node: Node<T>,
+        direction: Direction,
+    ) = adjacent(node) { _, dir -> dir == direction }.firstOrNull()
 
     /**
      * Gets the list of [Node] adjacent to the given node that satisfy the given predicate.
      * A node is considered adjacent if it is directly above, below, to the left of, or to the right of
      * the given node.
      * @param node Node.
-     * @param predicate Predicate to check.
+     * @param predicate Predicate to check. Defaults to matching all directions.
      * @return Adjacent nodes.
      */
     fun adjacent(
         node: Node<T>,
-        predicate: (Node<T>, Direction) -> Boolean,
+        predicate: (Node<T>, Direction) -> Boolean = { _, _ -> true },
     ) = listOfNotNull(
         nodes.getOrNull(node.y.toInt())?.getOrNull(node.x.toInt() - 1)?.takeIf { predicate(it, Direction.LEFT) },
         nodes.getOrNull(node.y.toInt() - 1)?.getOrNull(node.x.toInt())?.takeIf { predicate(it, Direction.UP) },
@@ -121,6 +123,12 @@ data class Grid<T>(
 
         return null
     }
+
+    /**
+     * Gets the first [Node] for this grid. The first node is the one at position (0, 0).
+     * @return First node.
+     */
+    fun first() = nodes[0][0]
 
     /**
      * Performs the given action on each node in this grid.
