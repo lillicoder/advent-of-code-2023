@@ -4,6 +4,9 @@ import com.lillicoder.adventofcode2023.grids.GridParser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day10].
+ */
 internal class Day10Test {
     private val input1 =
         """..F7.
@@ -40,7 +43,7 @@ internal class Day10Test {
 
     @Test
     fun part2() {
-        val expected = 8.0
+        val expected = 8L
         val actual = day10.part2(grid2)
         assertEquals(expected, actual)
     }

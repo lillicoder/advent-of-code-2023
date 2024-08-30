@@ -1,6 +1,6 @@
 dependencies {
-    implementation(libs.kotlin.stdlib)
     implementation(project(":grids"))
+    implementation(libs.kotlin.stdlib)
     testImplementation(libs.kotlin.test)
 }
 

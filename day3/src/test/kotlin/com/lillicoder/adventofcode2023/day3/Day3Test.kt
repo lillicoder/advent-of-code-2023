@@ -1,8 +1,12 @@
 package com.lillicoder.adventofcode2023.day3
 
+import com.lillicoder.adventofcode2023.grids.GridParser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day3].
+ */
 internal class Day3Test {
     private val input =
         """467..114..
@@ -16,7 +20,7 @@ internal class Day3Test {
            |...$.*....
            |.664.598..
         """.trimMargin()
-    private val schematic = EngineSchematicParser().parse(input.lines())
+    private val schematic = GridParser().parseGrid(input, "\n").toSchematic()
     private val day3 = Day3()
 
     @Test

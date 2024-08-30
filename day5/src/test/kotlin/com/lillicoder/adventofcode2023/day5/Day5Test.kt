@@ -3,6 +3,9 @@ package com.lillicoder.adventofcode2023.day5
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day5].
+ */
 internal class Day5Test {
     private val input =
         """seeds: 79 14 55 13
@@ -39,7 +42,7 @@ internal class Day5Test {
            |60 56 37
            |56 93 4
         """.trimMargin()
-    private val almanac = AlmanacParser().parse(input, "\n")
+    private val almanac = input.toAlmanac("\n")
     private val day5 = Day5()
 
     @Test

@@ -1,8 +1,13 @@
 package com.lillicoder.adventofcode2023.day1
 
+import com.lillicoder.adventofcode2023.io.Resources
+
 fun main() {
     val day1 = Day1()
-    val calibrationDocument = CalibrationDocumentParser().parse("input.txt")
+    val calibrationDocument =
+        Resources.lines(
+            "input.txt",
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
     println("[Part 1] The sum of calibration values is ${day1.part1(calibrationDocument)}.")
     println("[Part 2] The sum of calibration values is ${day1.part2(calibrationDocument)}.")
 }
@@ -10,34 +15,44 @@ fun main() {
 class Day1 {
     fun part1(document: List<String>) =
         document.sumOf { line ->
-            "${line.find { it.isDigit() }}${line.findLast { it.isDigit() }}".toInt()
+            "${line.first { it.isDigit() }}${line.last { it.isDigit() }}".toInt()
         }.toLong()
 
-    fun part2(
-        document: List<String>,
-        finder: CalibrationValueFinder = CalibrationValueFinder(),
-    ) = document.sumOf { line ->
-        finder.find(line)
-    }.toLong()
-}
-
-class CalibrationDocumentParser {
-    /**
-     * Parses the calibration document from the file with the given filename.
-     * @param filename Filename.
-     * @return Calibration document.
-     */
-    fun parse(filename: String) = javaClass.classLoader.getResourceAsStream(filename)!!.reader().readLines()
+    fun part2(document: List<String>) =
+        document.sumOf { line ->
+            line.joinFirstAndLastDigits()
+        }.toLong()
 }
 
 /**
- * Utility that can find calibration values from a calibration document.
+ * Represents a position in a line.
  */
-class CalibrationValueFinder {
-    /**
-     * Map of the digits 1 through 9 to their English-language word equivalent.
-     */
-    private val wordToNumber: Map<String, Int> =
+private enum class Position {
+    FIRST,
+    LAST,
+}
+
+/**
+ * Set of functions for doing digit lookups in a string.
+ * @param digitSelector Selects a [Char] that is also a digit from a string.
+ * @param indexSelector Selects a position for a [Char] within a string.
+ * @param wordSelector Selects a position for a numeric word from a string.
+ * @param keySelector Selects a key from a set of digit positions.
+ */
+private data class DigitLookup(
+    val digitSelector: (String) -> Char?,
+    val indexSelector: (String, Char) -> Int,
+    val wordSelector: (String) -> Int,
+    val keySelector: (Set<Int>) -> Int,
+)
+
+/**
+ * Finds the digit in this string for the given [Position]. Both numeric characters
+ * and numeric words will be parsed.
+ * @return Digit.
+ */
+private fun String.digit(position: Position): Int {
+    val wordToNumber =
         mapOf(
             "one" to 1,
             "two" to 2,
@@ -49,53 +64,53 @@ class CalibrationValueFinder {
             "eight" to 8,
             "nine" to 9,
         )
+    val (digitSelector, indexSelector, wordSelector, keySelector) =
+        when (position) {
+            Position.FIRST -> {
+                DigitLookup(
+                    { it.firstOrNull { it.isDigit() } },
+                    { line, digit -> line.indexOf(digit) },
+                    { it.toRegex().findAll(this).firstOrNull()?.range?.first ?: Int.MAX_VALUE },
+                    { it.min() },
+                )
+            }
+            Position.LAST -> {
+                DigitLookup(
+                    { it.lastOrNull { it.isDigit() } },
+                    { line, digit -> line.lastIndexOf(digit) },
+                    { it.toRegex().findAll(this).lastOrNull()?.range?.last ?: Int.MIN_VALUE },
+                    { it.max() },
+                )
+            }
+        }
 
-    /**
-     * Parses the given line to find the first and last digit and concatenate them to a single value.
-     * @param line Line to parse.
-     * @return Calibration value.
-     */
-    fun find(line: String) = "${findFirstDigit(line)}${findLastDigit(line)}".toInt()
+    // Pack digit (if any) into a map of position -> digit
+    val digitsByPosition = mutableMapOf<Int, Int>()
+    digitSelector(this)?.let { digitsByPosition[indexSelector(this, it)] = it.digitToInt() }
 
-    /**
-     * Finds the first digit in the given line. Both numeric characters and numeric words
-     * will be parsed.
-     * @param line Line to parse.
-     * @return First digit.
-     */
-    private fun findFirstDigit(line: String): Int {
-        val digitsByPosition = mutableMapOf<Int, Int>()
+    // Pack position for "one" through "nine" into map of position -> digit
+    wordToNumber.map { wordSelector(it.key) to it.value }.toMap(digitsByPosition)
 
-        // Pack first digit (if any) into a map of position -> digit
-        line.firstOrNull { it.isDigit() }?.let { digitsByPosition[line.indexOf(it)] = it.digitToInt() }
-
-        // Pack position for "one" through "nine" into map of position -> digit
-        wordToNumber.map {
-            (it.key.toRegex().findAll(line).firstOrNull()?.range?.first ?: Int.MAX_VALUE) to it.value
-        }.toMap(digitsByPosition)
-
-        // Smallest key is the first digit value in the line
-        return digitsByPosition[digitsByPosition.keys.min()]!!
-    }
-
-    /**
-     * Finds the last digit in the given line. Both numeric characters and numeric words
-     * will be parsed.
-     * @param line Line to parse.
-     * @return Last digit.
-     */
-    private fun findLastDigit(line: String): Int {
-        val digitsByPosition = mutableMapOf<Int, Int>()
-
-        // Pack last digit (if any) into a map of position -> digit
-        line.lastOrNull { it.isDigit() }?.let { digitsByPosition[line.lastIndexOf(it)] = it.digitToInt() }
-
-        // Pack position for "one" through "nine" into map of position -> digit
-        wordToNumber.map {
-            (it.key.toRegex().findAll(line).lastOrNull()?.range?.last ?: Int.MIN_VALUE) to it.value
-        }.toMap(digitsByPosition)
-
-        // Largest key is the last digit value in the line
-        return digitsByPosition[digitsByPosition.keys.max()]!!
-    }
+    // Smallest key is the first digit value in the line; largest key is the last digit value in the line
+    return digitsByPosition[keySelector(digitsByPosition.keys)]!!
 }
+
+/**
+ * Finds the first digit in this string. Both numeric characters
+ * and numeric words will be parsed.
+ * @return First digit.
+ */
+private fun String.firstDigit() = digit(Position.FIRST)
+
+/**
+ * Finds the last digit in this string. Both numeric characters
+ * and numeric words will be parsed.
+ * @return Last digit.
+ */
+private fun String.lastDigit() = digit(Position.LAST)
+
+/**
+ * Finds the first and last digits in this string and concatenates them.
+ * @return Joined digits.
+ */
+private fun String.joinFirstAndLastDigits() = "${firstDigit()}${lastDigit()}".toInt()

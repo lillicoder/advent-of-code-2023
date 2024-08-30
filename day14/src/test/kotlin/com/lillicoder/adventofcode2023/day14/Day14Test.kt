@@ -4,6 +4,9 @@ import com.lillicoder.adventofcode2023.grids.GridParser
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day14].
+ */
 internal class Day14Test {
     private val input =
         """O....#....

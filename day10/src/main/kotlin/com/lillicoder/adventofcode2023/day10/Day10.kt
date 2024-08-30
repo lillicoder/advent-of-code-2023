@@ -4,7 +4,8 @@ import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
 import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
-import kotlin.math.abs
+import com.lillicoder.adventofcode2023.math.Math
+import com.lillicoder.adventofcode2023.math.Vertex
 
 fun main() {
     val day10 = Day10()
@@ -14,9 +15,9 @@ fun main() {
 }
 
 class Day10 {
-    fun part1(maze: PipeMaze) = Pathfinder().findLoopMaxDistance(maze)
+    fun part1(maze: PipeMaze) = maze.maxDistanceFromStart()
 
-    fun part2(maze: PipeMaze) = Pathfinder().findEnclosureArea(maze)
+    fun part2(maze: PipeMaze) = maze.enclosedArea()
 }
 
 /**
@@ -68,71 +69,11 @@ data class PipeMaze(private val grid: Grid<String>) {
         )
 
     /**
-     * Gets all valid adjacent [Node] for the given node.
-     * @param node Node.
-     * @return Valid adjacent nodes.
-     */
-    fun adjacent(node: Node<String>) =
-        // Only some kinds of values are legitimate adjacent nodes for the purposes of finding
-        // distances, paths, enclosures, so filter the output from the underlying grid
-        grid.adjacent(node) { adjacent, direction ->
-            val validSymbols =
-                when (direction) {
-                    Direction.LEFT -> validLefts
-                    Direction.UP -> validTops
-                    Direction.DOWN -> validBottoms
-                    Direction.RIGHT -> validRights
-                    else -> null
-                }
-            validSymbols?.get(node.value)?.contains(adjacent.value) ?: false
-        }
-
-    /**
-     * Finds the first [Node] that satisfies the given predicate.
-     * @param predicate Predicate to check.
-     * @return Found node or null if no node satisfied the predicate.
-     */
-    fun find(predicate: (String) -> Boolean): Node<String>? = grid.find(predicate)
-}
-
-class Pathfinder {
-    /**
-     * Gets the area of all enclosed spaces in the given [PipeMaze].
-     * @param maze Maze to search.
-     * @return Sum of enclosed areas.
-     */
-    fun findEnclosureArea(maze: PipeMaze): Double {
-        val loop = findLoop(maze)
-        val vertices =
-            loop.filter {
-                when (it.value) {
-                    "F", "7", "L", "J", "S" -> true
-                    else -> false
-                }
-            }
-
-        // Shoelace formula
-        // area = 1/2 * sum of all cross products of vertex pairs (including first and last as they form an edge)
-        var shoelace = 0.0
-        vertices.windowed(2, 1).forEach { pair ->
-            shoelace += cross(pair[0].x, pair[0].y, pair[1].x, pair[1].y)
-        }
-        shoelace += cross(vertices.last().x, vertices.last().y, vertices.first().x, vertices.first().y)
-        shoelace = abs(shoelace) / 2L
-
-        // Pick's theorem
-        // interior area = area - (loopSize / 2) + 1
-        return shoelace - (loop.size / 2) + 1
-    }
-
-    /**
-     * Finds the maximum distance away from the starting node in
-     * the pipe loop for the given [PipeMaze].
-     * @param maze Maze to search.
+     * Finds the maximum distance away from the starting node in this pipe maze.
      * @return Max distance.
      */
-    fun findLoopMaxDistance(maze: PipeMaze): Long {
-        val start = maze.find { it == "S" }!!
+    fun maxDistanceFromStart(): Long {
+        val start = start()
 
         // Using BFS, each iteration of a queue pop will be the next tier of distance
         val queue = ArrayDeque<Node<String>>()
@@ -141,7 +82,7 @@ class Pathfinder {
         queue.add(start)
         while (queue.isNotEmpty()) {
             val next = queue.removeFirst()
-            maze.adjacent(next).forEach { adjacent ->
+            adjacent(next).forEach { adjacent ->
                 if (!distance.contains(adjacent)) {
                     distance[adjacent] = distance.getValue(next) + 1
                     queue.add(adjacent)
@@ -153,32 +94,56 @@ class Pathfinder {
     }
 
     /**
-     * Gets the cross product of the given points.
-     * @param x1 First X-coordinate.
-     * @param y1 First y-coordinate.
-     * @param x2 Second x-coordinate.
-     * @param y2 Second y-coordinate.
-     * @return Cross product.
+     * Gets the area of the enclosed space in this pipe maze.
+     * @return Enclosed area.
      */
-    private fun cross(
-        x1: Long,
-        y1: Long,
-        x2: Long,
-        y2: Long,
-    ) = (x1 * y2) - (x2 * y1)
+    fun enclosedArea(): Long {
+        val loop = findLoop()
+        val vertices =
+            loop.filter {
+                when (it.value) {
+                    "F", "7", "L", "J", "S" -> true
+                    else -> false
+                }
+            }.map {
+                Vertex(it.x, it.y)
+            }
+
+        val area: Long = Math.area(vertices) // Total area including boundary nodes
+        return Math.area(area, loop.size) // Area without boundary nodes
+    }
 
     /**
-     * Find the list of [Node] that comprise the pipe loop in the given [PipeMaze].
-     * @param maze Maze to find the loop in.
-     * @return Pipe loop nodes starting with S and ending with a node adjacent to S.
+     * Gets all valid adjacent [Node] for the given node.
+     * @param node Node.
+     * @return Valid adjacent nodes.
      */
-    private fun findLoop(maze: PipeMaze): List<Node<String>> {
+    private fun adjacent(node: Node<String>) =
+        // Only some kinds of values are legitimate adjacent nodes for the purposes of finding
+        // distances, paths, enclosures, so filter the output from the underlying grid
+        grid.adjacent(node) { adjacent, direction ->
+            val validSymbols =
+                when (direction) {
+                    Direction.LEFT -> validLefts
+                    Direction.UP -> validTops
+                    Direction.DOWN -> validBottoms
+                    Direction.RIGHT -> validRights
+                    else -> mapOf()
+                }
+            validSymbols[node.value]?.contains(adjacent.value) ?: false
+        }
+
+    /**
+     * Find the list of [Node] that comprise the pipe loop in this pipe maze.
+     * @return Nodes starting with S and ending with a node adjacent to S.
+     */
+    private fun findLoop(): List<Node<String>> {
         val loop = mutableListOf<Node<String>>()
 
-        val start = maze.find { it == "S" }!!
+        val start = start()
         var node = start
         do {
-            val adjacent = maze.adjacent(node).toMutableList()
+            val adjacent = adjacent(node).toMutableList()
             if (loop.isNotEmpty()) {
                 adjacent.remove(loop.last()) // Force forward movement
             }
@@ -189,4 +154,11 @@ class Pathfinder {
 
         return loop
     }
+
+    /**
+     * Gets the start node for this maze.
+     * @return Start node.
+     * @throws IllegalArgumentException Thrown if this maze has no start node.
+     */
+    private fun start() = grid.find { it == "S" } ?: throw IllegalArgumentException("Pipe maze has no starting node.")
 }

@@ -3,6 +3,9 @@ package com.lillicoder.adventofcode2023.day2
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day2].
+ */
 internal class Day2Test {
     private val input =
         """Game 1: 3 blue, 4 red; 1 red, 2 green, 6 blue; 2 green
@@ -11,7 +14,7 @@ internal class Day2Test {
           |Game 4: 1 green, 3 red, 6 blue; 3 green, 6 red; 3 green, 15 blue, 14 red
           |Game 5: 6 red, 1 blue, 3 green; 2 blue, 1 red, 2 green
         """.trimMargin()
-    private val games = GameParser().parse(input.lines())
+    private val games = input.lines().map { it.toGame() }
     private val day2 = Day2()
 
     @Test

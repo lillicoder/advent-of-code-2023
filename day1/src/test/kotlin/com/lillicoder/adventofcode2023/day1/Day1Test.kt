@@ -3,6 +3,9 @@ package com.lillicoder.adventofcode2023.day1
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for {Day1].
+ */
 internal class Day1Test {
     private val day1 = Day1()
 
@@ -30,7 +33,6 @@ internal class Day1Test {
                |zoneight234
                |7pqrstsixteen
             """
-
         val expected = 281L
         val actual = day1.part2(input.trimMargin().lines())
         assertEquals(expected, actual)

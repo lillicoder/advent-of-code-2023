@@ -3,12 +3,15 @@ package com.lillicoder.adventofcode2023.day6
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day6].
+ */
 internal class Day6Test {
     private val input =
         """Time:      7  15   30
            |Distance:  9  40  200
         """.trimMargin()
-    private val races = RaceParser().parse(input, "\n")
+    private val races = input.toRaces("\n")
     private val day6 = Day6()
 
     @Test

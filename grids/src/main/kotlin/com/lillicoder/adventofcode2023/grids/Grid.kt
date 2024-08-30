@@ -10,6 +10,24 @@ data class Grid<T>(
     val width: Int = nodes[0].size,
     val height: Int = nodes.size,
 ) {
+    companion object {
+        /**
+         * Creates a new [Grid] from the given list of strings. Each string
+         * will be considered as a row and each character in each string
+         * considered as a column.
+         * @param raw Raw values.
+         * @return Grid.
+         */
+        fun create(raw: List<String>) =
+            Grid(
+                raw.mapIndexed { y, row ->
+                    row.mapIndexed { x, node ->
+                        Node(x.toLong(), y.toLong(), node.toString())
+                    }
+                },
+            )
+    }
+
     /**
      * Gets the list of [Node] adjacent to the given node. A node is considered
      * adjacent if it is directly above, below, to the left of, or to the right of
@@ -47,6 +65,13 @@ data class Grid<T>(
         nodes.map {
             it[index]
         }
+
+    /**
+     * Counts the number of nodes per row matching the given predicate.
+     * @param predicate Predicate to check.
+     * @return Number of nodes per row satisfying the predicate.
+     */
+    fun countNodesByRow(predicate: (Node<T>) -> Boolean) = nodes.map { it.count(predicate) }
 
     /**
      * Gets the Manhattan distance between the given starting and ending nodes.
@@ -135,24 +160,43 @@ data class Grid<T>(
     }
 
     /**
+     * Returns a list containing the results of applying the given transform function
+     * to each column of nodes in this grid.
+     * @param transform Transform to apply.
+     * @return Mapped columns.
+     */
+    fun <R> mapColumns(transform: (List<Node<T>>) -> R): List<R> {
+        val transformed = mutableListOf<R>()
+        forEachColumn {
+            transformed.add(transform(it))
+        }
+        return transformed
+    }
+
+    /**
      * Returns a [Grid] containing the results of applying the given transform function
-     * to each node in the original grid.
+     * to each node in this grid.
      * @param transform Transform to apply.
      * @return Mapped grid.
      */
-    fun map(transform: (Node<T>) -> Node<T>): Grid<T> {
-        val mapped = mutableListOf<List<Node<T>>>()
-
-        nodes.forEach { row ->
-            val mappedRow = mutableListOf<Node<T>>()
-            row.forEach { node ->
-                mappedRow.add(transform(node))
+    fun <R> mapNodes(transform: (Node<T>) -> Node<R>): Grid<R> {
+        val mapped =
+            nodes.map { row ->
+                row.map {
+                    transform(it)
+                }
             }
-            mapped.add(mappedRow)
-        }
 
         return Grid(mapped)
     }
+
+    /**
+     * Returns a list containing the results of applying the given transform function
+     * to each row of nodes in this grid.
+     * @param transform Transform to apply.
+     * @return Mapped rows.
+     */
+    fun <R> mapRows(transform: (List<Node<T>>) -> R) = nodes.map(transform)
 
     /**
      * Gets the list of [Node] neighboring the given node. A node is considered a neighbor

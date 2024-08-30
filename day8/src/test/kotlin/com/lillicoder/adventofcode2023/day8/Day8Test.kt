@@ -3,6 +3,9 @@ package com.lillicoder.adventofcode2023.day8
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+/**
+ * Unit tests for [Day8].
+ */
 internal class Day8Test {
     private val input1 =
         """LLR
@@ -11,7 +14,7 @@ internal class Day8Test {
            |BBB = (AAA, ZZZ)
            |ZZZ = (ZZZ, ZZZ)
         """.trimMargin()
-    private val network1 = NetworkParser().parse(input1, "\n")
+    private val network1 = input1.toNetwork("\n")
 
     private val input2 =
         """LR
@@ -25,7 +28,7 @@ internal class Day8Test {
            |22Z = (22B, 22B)
            |XXX = (XXX, XXX)
         """.trimMargin()
-    private val network2 = NetworkParser().parse(input2, "\n")
+    private val network2 = input2.toNetwork("\n")
 
     private val day8 = Day8()
 

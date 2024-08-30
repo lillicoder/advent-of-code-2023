@@ -1,5 +1,7 @@
 package com.lillicoder.adventofcode2023.grids
 
+import com.lillicoder.adventofcode2023.io.splitNotEmpty
+
 /**
  * Parser for creating a [Grid] from a file.
  */
@@ -62,7 +64,7 @@ class GridParser {
 
         raw.split(separator).forEachIndexed { y, line ->
             val row = mutableListOf<Node<T>>()
-            line.split("").filter { it.isNotEmpty() }.forEachIndexed { x, value ->
+            line.splitNotEmpty("").forEachIndexed { x, value ->
                 val node = Node(x.toLong(), y.toLong(), converter(value))
                 row.add(node)
             }
