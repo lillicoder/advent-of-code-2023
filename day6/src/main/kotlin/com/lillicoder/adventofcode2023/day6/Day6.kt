@@ -1,7 +1,7 @@
 package com.lillicoder.adventofcode2023.day6
 
 import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMap
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 
 fun main() {
     val day6 = Day6()
@@ -75,7 +75,7 @@ data class Race(
  */
 internal fun String.toRaces(separator: String = System.lineSeparator()): List<Race> {
     val sections = split(separator)
-    val times = sections[0].substringAfter(":").splitMap(" ") { it.toLong() }
-    val distances = sections[1].substringAfter(":").splitMap(" ") { it.toLong() }
+    val times = sections[0].substringAfter(":").splitMapNotEmpty(" ") { it.toLong() }
+    val distances = sections[1].substringAfter(":").splitMapNotEmpty(" ") { it.toLong() }
     return times.zip(distances).map { Race(it.first, it.second) }
 }

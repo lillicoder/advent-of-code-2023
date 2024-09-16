@@ -1,7 +1,7 @@
 package com.lillicoder.adventofcode2023.day5
 
 import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMap
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 import kotlin.math.min
 
 fun main() {
@@ -121,7 +121,7 @@ internal fun String.toAlmanac(separator: String = System.lineSeparator()): Alman
     val sections = split("$separator$separator")
 
     // First section is seeds list; format: `seeds: ### ### ###`
-    val seeds = sections[0].substringAfter(":").splitMap(" ") { it.toLong() }
+    val seeds = sections[0].substringAfter(":").splitMapNotEmpty(" ") { it.toLong() }
 
     // All maps are a heading line followed by 3 numbers, e.g.:
     //
@@ -155,9 +155,9 @@ internal fun String.toAlmanac(separator: String = System.lineSeparator()): Alman
 private fun String.toMappings(separator: String) =
     substringAfter(
         ":",
-    ).splitMap(
+    ).splitMapNotEmpty(
         separator,
     ) { line ->
-        val parts = line.splitMap(" ") { it.toLong() }
+        val parts = line.splitMapNotEmpty(" ") { it.toLong() }
         Mapping(parts[0], parts[1], parts[2])
     }

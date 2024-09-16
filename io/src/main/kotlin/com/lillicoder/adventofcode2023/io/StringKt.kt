@@ -26,6 +26,18 @@ package com.lillicoder.adventofcode2023.io
 fun <T> String.splitMap(
     delimiter: String,
     transform: (String) -> T,
+) = split(delimiter).map(transform)
+
+/**
+ * Splits this string with the given delimiter then maps each substring
+ * with the given transform function. Empty substrings are filtered out.
+ * @param delimiter Delimiter.
+ * @param transform Transform function.
+ * @return Split and mapped string.
+ */
+fun <T> String.splitMapNotEmpty(
+    delimiter: String,
+    transform: (String) -> T,
 ) = splitNotEmpty(delimiter).map(transform)
 
 /**

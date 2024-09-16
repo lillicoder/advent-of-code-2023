@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.grids
 
-import com.lillicoder.adventofcode2023.io.splitMap
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 import com.lillicoder.adventofcode2023.io.splitNotEmpty
 
 /**
@@ -98,5 +98,5 @@ class GridParser {
         raw: String,
         separator: String = System.lineSeparator(),
         converter: (String) -> T,
-    ) = raw.splitMap("$separator$separator") { parseGrid(it, separator, converter) }
+    ) = raw.splitMapNotEmpty("$separator$separator") { parseGrid(it, separator, converter) }
 }

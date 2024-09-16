@@ -1,7 +1,7 @@
 package com.lillicoder.adventofcode2023.day9
 
 import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMap
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 
 fun main() {
     val day9 = Day9()
@@ -61,7 +61,7 @@ private fun List<Long>.predictNext(): Long {
  */
 internal fun List<String>.toReadings() =
     map { string ->
-        string.splitMap(" ") { digit ->
+        string.splitMapNotEmpty(" ") { digit ->
             digit.toLong()
         }
     }

@@ -1,7 +1,7 @@
 package com.lillicoder.adventofcode2023.day7
 
 import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMap
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 
 fun main() {
     val day7 = Day7()
@@ -278,4 +278,4 @@ private fun String.toCard(filter: (Card) -> Boolean) =
  * @param filter Filter for which card types are allowed.
  * @return Cards.
  */
-private fun String.toCards(filter: (Card) -> Boolean): List<Card> = splitMap("") { it.toCard(filter) }
+private fun String.toCards(filter: (Card) -> Boolean): List<Card> = splitMapNotEmpty("") { it.toCard(filter) }
