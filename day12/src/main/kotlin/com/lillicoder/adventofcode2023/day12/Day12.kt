@@ -1,6 +1,7 @@
 package com.lillicoder.adventofcode2023.day12
 
 import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode2023.io.splitMap
 import kotlin.math.min
 
 fun main() {
@@ -130,6 +131,6 @@ private fun MutableMap<String, Long>.arrangements(row: Row): Long {
 private fun String.toRow(): Row {
     val parts = split(" ")
     val springs = parts[0]
-    val pattern = parts[1].split(",").map { it.toInt() }
+    val pattern = parts[1].splitMap(",") { it.toInt() }
     return Row(springs, pattern)
 }

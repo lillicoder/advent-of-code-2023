@@ -4,6 +4,7 @@ import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
 import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
+import com.lillicoder.adventofcode2023.io.splitMap
 import com.lillicoder.adventofcode2023.io.splitNotEmpty
 
 fun main() {
@@ -116,25 +117,18 @@ private fun Grid<String>.tilt(direction: Direction): Grid<String> {
  * @param comparator Comparator to determine node order.
  * @return Tilted row or column as a string.
  */
-private fun List<Node<String>>.tilt(comparator: Comparator<String>): String {
-    // Split by cubes
-    val raw = joinToString("") { it.value }.split("#")
-
-    // Sort each chunk to roll the spheres
-    val processed =
-        raw.map { chunk ->
-            chunk.splitNotEmpty(
-                "",
-            ).sortedWith(
-                comparator,
-            ).joinToString(
-                "",
-            )
-        }
-
-    // Fully processed, reconstitute the cubes
-    return processed.joinToString("#")
-}
+private fun List<Node<String>>.tilt(comparator: Comparator<String>) =
+    joinToString("") {
+        it.value
+    }.splitMap("#") { // Split by cubes, sort each chunk to roll the spheres, and put the cubes back
+        it.splitNotEmpty(
+            "",
+        ).sortedWith(
+            comparator,
+        ).joinToString(
+            "",
+        )
+    }.joinToString("#")
 
 /**
  * Converts a list of strings representing columns to a list of strings representing

@@ -1,6 +1,7 @@
 package com.lillicoder.adventofcode2023.day2
 
 import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode2023.io.splitMap
 
 fun main() {
     val day2 = Day2()
@@ -82,7 +83,7 @@ data class Pull(
  */
 internal fun String.toGame(): Game {
     val id = substringBefore(": ").substringAfter("Game ").toInt()
-    val rounds = substringAfter(": ").split("; ").map { it.toRound() }
+    val rounds = substringAfter(": ").splitMap("; ") { it.toRound() }
     return Game(id, rounds)
 }
 
@@ -103,7 +104,7 @@ private fun String.toPull(): Pull {
  */
 private fun String.toRound(): Round {
     val pulls =
-        split(", ").map {
+        splitMap(", ") {
             it.toPull()
         }.associateBy {
             it.color
