@@ -1,12 +1,11 @@
 package com.lillicoder.adventofcode2023.day11
 
 import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
 
 fun main() {
     val day11 = Day11()
-    val grid = GridParser().parseFile("input.txt").first()
+    val grid = Grid.read("input.txt")
     println("The shortest path for all pairs of galaxies is ${day11.part1(grid)}. [factor=2]")
     println("The shortest path for all pairs of galaxies is ${day11.part2(grid)}. [factor=1,000,000]")
 }

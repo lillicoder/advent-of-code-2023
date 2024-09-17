@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.day11
 
-import com.lillicoder.adventofcode2023.grids.GridParser
+import com.lillicoder.adventofcode2023.grids.Grid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,7 +20,7 @@ internal class Day11Test {
            |.......#..
            |#...#.....
         """.trimMargin()
-    private val grid = GridParser().parseGrid(input, "\n")
+    private val grid = Grid.create(input.lines())
     private val day11 = Day11()
 
     @Test

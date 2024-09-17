@@ -1,12 +1,11 @@
 package com.lillicoder.adventofcode2023.day13
 
 import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
 
 fun main() {
     val day13 = Day13()
-    val grids = GridParser().parseFile("input.txt")
+    val grids = Grid.readAll("input.txt")
     println("Sum of reflections of the grids is ${day13.part1(grids)}.")
     println("Sum of reflections w/ smudges is ${day13.part2(grids)}.")
 }

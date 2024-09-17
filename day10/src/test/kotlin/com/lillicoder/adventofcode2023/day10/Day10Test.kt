@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.day10
 
-import com.lillicoder.adventofcode2023.grids.GridParser
+import com.lillicoder.adventofcode2023.grids.Grid
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -16,7 +16,7 @@ internal class Day10Test {
            >LJ...
         """.trimMargin(">")
 
-    private val grid1 = PipeMaze(GridParser().parseGrid(input1, "\n"))
+    private val grid1 = PipeMaze(Grid.create(input1.lines()))
 
     private val input2 =
         """.F----7F7F7F7F-7....
@@ -30,7 +30,7 @@ internal class Day10Test {
             >....FJL-7.||.||||...
             >....L---J.LJ.LJLJ...
         """.trimMargin(">")
-    private val grid2 = PipeMaze(GridParser().parseGrid(input2, "\n"))
+    private val grid2 = PipeMaze(Grid.create(input2.lines()))
 
     private val day10 = Day10()
 

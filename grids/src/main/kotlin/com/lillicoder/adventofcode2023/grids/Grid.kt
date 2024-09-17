@@ -1,5 +1,7 @@
 package com.lillicoder.adventofcode2023.grids
 
+import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 import kotlin.math.abs
 
 /**
@@ -26,6 +28,27 @@ data class Grid<T>(
                     }
                 },
             )
+
+        /**
+         * Creates a new [Grid] by reading the resource with the given filename.
+         * @param filename Resource filename.
+         * @return Grid.
+         */
+        fun read(filename: String) = readAll(filename).first()
+
+        /**
+         * Creates one or more [Grid] by reading the resource with the given filename.
+         * @param filename Resource filename.
+         * @param separator Line separator.
+         * @return Grids.
+         */
+        fun readAll(
+            filename: String,
+            separator: String = System.lineSeparator(),
+        ): List<Grid<String>> {
+            val raw = Resources.text(filename) ?: throw IllegalArgumentException("Could not read input from file.")
+            return raw.splitMapNotEmpty("$separator$separator") { create(it.lines()) }
+        }
     }
 
     /**

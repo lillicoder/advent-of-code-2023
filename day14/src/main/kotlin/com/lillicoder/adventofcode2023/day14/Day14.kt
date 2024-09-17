@@ -2,14 +2,13 @@ package com.lillicoder.adventofcode2023.day14
 
 import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
 import com.lillicoder.adventofcode2023.io.splitMap
 import com.lillicoder.adventofcode2023.io.splitNotEmpty
 
 fun main() {
     val day14 = Day14()
-    val grid = GridParser().parseFile("input.txt").first()
+    val grid = Grid.read("input.txt")
     println("The total load for a single tilt to the north is ${day14.part1(grid)}.")
     println("The total load for a 1000000000 cycles is ${day14.part2(grid)}.")
 }

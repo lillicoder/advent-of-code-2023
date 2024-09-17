@@ -2,14 +2,13 @@ package com.lillicoder.adventofcode2023.day10
 
 import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
 import com.lillicoder.adventofcode2023.math.Math
 import com.lillicoder.adventofcode2023.math.Vertex
 
 fun main() {
     val day10 = Day10()
-    val maze = PipeMaze(GridParser().parseFile("input.txt").first())
+    val maze = PipeMaze(Grid.read("input.txt"))
     println("The max distance for the loop in the pipe maze is ${day10.part1(maze)}.")
     println("The area of enclosures spaces is ${day10.part2(maze)}.")
 }

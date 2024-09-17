@@ -1,12 +1,11 @@
 package com.lillicoder.adventofcode2023.day3
 
 import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.GridParser
 import com.lillicoder.adventofcode2023.grids.Node
 
 fun main() {
     val day3 = Day3()
-    val schematic = GridParser().parseFile("input.txt").first().toSchematic()
+    val schematic = Grid.read("input.txt").toSchematic()
     println("The sum of all part numbers in the schematic is ${day3.part1(schematic)}.")
     println("The sum of all gear ratios in the schematic is ${day3.part2(schematic)}.")
 }
