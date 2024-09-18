@@ -5,7 +5,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 /**
- * Unit tests for [Day 16].
+ * Unit tests for [Day16].
  */
 internal class Day16Test {
     private val input =
