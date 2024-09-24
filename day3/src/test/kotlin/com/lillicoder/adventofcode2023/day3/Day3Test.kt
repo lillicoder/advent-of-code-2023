@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.day3
 
-import com.lillicoder.adventofcode2023.grids.Grid
+import com.lillicoder.adventofcode2023.graphs.gridToGraph
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,7 +20,7 @@ internal class Day3Test {
            |...$.*....
            |.664.598..
         """.trimMargin()
-    private val schematic = Grid.create(input.lines()).toSchematic()
+    private val schematic = input.lines().gridToGraph(allowDiagonals = true).toSchematic()
     private val day3 = Day3()
 
     @Test
