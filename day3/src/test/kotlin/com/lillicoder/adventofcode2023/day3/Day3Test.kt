@@ -20,7 +20,7 @@ internal class Day3Test {
            |...$.*....
            |.664.598..
         """.trimMargin()
-    private val schematic = input.lines().gridToGraph(allowDiagonals = true).toSchematic()
+    private val schematic = input.gridToGraph(allowDiagonals = true).toSchematic()
     private val day3 = Day3()
 
     @Test

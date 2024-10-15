@@ -17,9 +17,12 @@
 package com.lillicoder.adventofcode2023.math
 
 /**
- * Represents a single two-dimensional vertex.
+ * Represents a direction in two dimensions.
  */
-data class Vertex(
-    val x: Long,
-    val y: Long,
-)
+enum class Direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    UNKNOWN,
+}

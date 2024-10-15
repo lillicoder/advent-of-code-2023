@@ -16,7 +16,6 @@
 
 package com.lillicoder.adventofcode2023.math
 
-import kotlin.math.abs
 import kotlin.math.max
 
 /**
@@ -34,32 +33,6 @@ object Math {
         interior: Long,
         boundary: Int,
     ) = interior - (boundary / 2) + 1
-
-    /**
-     * Gets the area of the polygon with the given list of [Vertex].
-     * @return Area.
-     * @see [Shoelace Formula](https://en.wikipedia.org/wiki/Shoelace_formula)
-     */
-    fun area(vertices: List<Vertex>): Long {
-        val crossProducts =
-            vertices.windowed(2, 1).sumOf { pair ->
-                cross(pair[0], pair[1])
-            }.plus(
-                cross(vertices.last(), vertices.first()),
-            )
-        return abs(crossProducts) / 2
-    }
-
-    /**
-     * Gets the cross product of the given [Vertex].
-     * @param first First vertex.
-     * @param second Second vertex.
-     * @return Cross product.
-     */
-    private fun cross(
-        first: Vertex,
-        second: Vertex,
-    ) = (first.x * second.y) - (second.x * first.y)
 
     /**
      * Finds the least common multiple among the given values.

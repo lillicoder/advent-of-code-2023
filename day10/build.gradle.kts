@@ -1,5 +1,5 @@
 dependencies {
-    implementation(project(":grids"))
+    implementation(project(":graphs"))
     implementation(project(":io"))
     implementation(project(":math"))
     implementation(libs.kotlin.stdlib)

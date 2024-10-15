@@ -1,10 +1,10 @@
 package com.lillicoder.adventofcode2023.day14
 
-import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
 import com.lillicoder.adventofcode2023.grids.Node
 import com.lillicoder.adventofcode2023.io.splitMap
 import com.lillicoder.adventofcode2023.io.splitNotEmpty
+import com.lillicoder.adventofcode2023.math.Direction
 
 fun main() {
     val day14 = Day14()
@@ -106,6 +106,7 @@ private fun Grid<String>.tilt(direction: Direction): Grid<String> {
                     it.tilt(comparator)
                 }.columnsToRows() // Convert columns to rows before making grid to ensure proper order
             }
+            else -> emptyList()
         }
 
     return Grid.create(tilted)

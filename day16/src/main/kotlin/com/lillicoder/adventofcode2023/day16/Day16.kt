@@ -1,8 +1,8 @@
 package com.lillicoder.adventofcode2023.day16
 
-import com.lillicoder.adventofcode2023.grids.Direction
 import com.lillicoder.adventofcode2023.grids.Grid
 import com.lillicoder.adventofcode2023.grids.Node
+import com.lillicoder.adventofcode2023.math.Direction
 
 fun main() {
     val day16 = Day16()
@@ -101,6 +101,7 @@ data class Beam(
                         Direction.DOWN -> Direction.LEFT
                         Direction.LEFT -> Direction.DOWN
                         Direction.RIGHT -> Direction.UP
+                        else -> direction
                     }
                 }
                 "\\" -> {
@@ -109,6 +110,7 @@ data class Beam(
                         Direction.DOWN -> Direction.RIGHT
                         Direction.LEFT -> Direction.UP
                         Direction.RIGHT -> Direction.DOWN
+                        else -> direction
                     }
                 }
                 else -> direction

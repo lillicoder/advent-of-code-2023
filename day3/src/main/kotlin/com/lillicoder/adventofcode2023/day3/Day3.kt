@@ -8,8 +8,8 @@ import com.lillicoder.adventofcode2023.io.Resources
 fun main() {
     val day3 = Day3()
     val schematic =
-        Resources.text("input.txt")?.lines()?.gridToGraph(allowDiagonals = true)?.toSchematic()
-            ?: throw IllegalArgumentException("")
+        Resources.text("input.txt")?.gridToGraph(allowDiagonals = true)?.toSchematic()
+            ?: throw IllegalArgumentException("Could not read input from file.")
     println("The sum of all part numbers in the schematic is ${day3.part1(schematic)}.")
     println("The sum of all gear ratios in the schematic is ${day3.part2(schematic)}.")
 }

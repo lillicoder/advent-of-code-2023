@@ -16,25 +16,11 @@
 
 package com.lillicoder.adventofcode2023.graphs
 
+/**
+ * [Graph](https://en.wikipedia.org/wiki/Graph_(abstract_data_type)) interface.
+ */
 interface Graph<T> : Iterable<Vertex<T>> {
     override fun iterator() = InsertOrderTraversal(this)
-
-    /**
-     * Adds an edge connecting the two given [Vertex].
-     * @param first First vertex.
-     * @param second Second vertex.
-     */
-    fun addEdge(
-        first: Vertex<T>,
-        second: Vertex<T>,
-    )
-
-    /**
-     * Adds a new [Vertex] to this graph.
-     * @param element Vertex value.
-     * @return Added vertex.
-     */
-    fun addVertex(element: T): Vertex<T>
 
     /**
      * Determines if there is an edge between the two given [Vertex].
@@ -49,7 +35,7 @@ interface Graph<T> : Iterable<Vertex<T>> {
 
     /**
      * Gets all neighbors of the given [Vertex]. A vertex is considered
-     * a neighbor if there is an edge to it from the given element.
+     * a neighbor if there is an edge to it from the given vertex.
      * @param vertex Vertex.
      * @return Neighbors.
      */
@@ -63,29 +49,13 @@ interface Graph<T> : Iterable<Vertex<T>> {
     fun next(vertex: Vertex<T>): Vertex<T>?
 
     /**
-     * Removes an edge, if any, connecting the two given [Vertex].
-     * @param first First vertex.
-     * @param second Second vertex.
-     */
-    fun removeEdge(
-        first: Vertex<T>,
-        second: Vertex<T>,
-    )
-
-    /**
-     * Removes the given [Vertex] from this graph.
-     * @param vertex Vertex to remove.
-     */
-    fun removeVertex(vertex: Vertex<T>)
-
-    /**
-     * Gets the first node added to this graph.
-     * @return First node.
+     * Gets the first [Vertex] added to this graph.
+     * @return First vertex.
      */
     fun root(): Vertex<T>
 
     /**
-     * Gets the number of nodes in this graph.
+     * Gets the number of vertices in this graph.
      */
     fun size(): Int
 
@@ -95,4 +65,59 @@ interface Graph<T> : Iterable<Vertex<T>> {
      * @return Vertex or null if there is no matching vertex.
      */
     fun vertex(id: Long): Vertex<T>?
+
+    /**
+     * Base class for [Graph] builders.
+     * @param vertices Map of each [Vertex] to its [Edge]s.
+     * @param edges Set of all edges.
+     */
+    abstract class Builder<T>(
+        internal val vertices: MutableMap<Vertex<T>, MutableSet<Edge<T>>> = mutableMapOf(),
+        internal val edges: MutableSet<Edge<T>> = mutableSetOf(),
+    ) {
+        /**
+         * Creates a new [Graph] from this builder.
+         * @return Graph.
+         */
+        abstract fun build(): Graph<T>
+
+        /**
+         * Adds an edge connecting the two given [Vertex].
+         * @param first First vertex.
+         * @param second Second vertex.
+         * @return Builder.
+         */
+        fun edge(
+            first: Vertex<T>,
+            second: Vertex<T>,
+        ) = apply {
+            Edge(
+                first,
+                second,
+            ).also {
+                vertices[first]?.add(it)
+                vertices[second]?.add(it)
+                edges.add(it)
+            }
+        }
+
+        /**
+         * Adds a new [Vertex] to this graph.
+         * @param element Vertex value.
+         * @param block Optional block to call after adding the vertex.
+         * @return Builder.
+         */
+        fun vertex(
+            element: T,
+            block: (Vertex<T>) -> Unit = {},
+        ) = apply {
+            Vertex(
+                vertices.size.toLong(),
+                element,
+            ).also {
+                vertices[it] = mutableSetOf()
+                block(it)
+            }
+        }
+    }
 }

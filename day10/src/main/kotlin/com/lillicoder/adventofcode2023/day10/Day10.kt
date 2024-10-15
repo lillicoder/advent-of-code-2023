@@ -1,14 +1,19 @@
 package com.lillicoder.adventofcode2023.day10
 
-import com.lillicoder.adventofcode2023.grids.Direction
-import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.Node
+import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode2023.graphs.Vertex
+import com.lillicoder.adventofcode2023.graphs.gridToGraph
+import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode2023.math.Direction
 import com.lillicoder.adventofcode2023.math.Math
-import com.lillicoder.adventofcode2023.math.Vertex
+import com.lillicoder.adventofcode2023.math.area
 
 fun main() {
     val day10 = Day10()
-    val maze = PipeMaze(Grid.read("input.txt"))
+    val graph =
+        Resources.text("input.txt")?.gridToGraph()
+            ?: throw IllegalArgumentException("Could not read input from file.")
+    val maze = PipeMaze(graph)
     println("The max distance for the loop in the pipe maze is ${day10.part1(maze)}.")
     println("The area of enclosures spaces is ${day10.part2(maze)}.")
 }
@@ -22,7 +27,7 @@ class Day10 {
 /**
  * Represents an arbitrary grid of pipes. It's not really a maze but whatever.
  */
-data class PipeMaze(private val grid: Grid<String>) {
+data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
     private val validTops =
         mapOf(
             "|" to listOf("|", "7", "F", "S"),
@@ -68,20 +73,20 @@ data class PipeMaze(private val grid: Grid<String>) {
         )
 
     /**
-     * Finds the maximum distance away from the starting node in this pipe maze.
+     * Finds the maximum distance away from the starting [Vertex] in this pipe maze.
      * @return Max distance.
      */
     fun maxDistanceFromStart(): Long {
         val start = start()
 
         // Using BFS, each iteration of a queue pop will be the next tier of distance
-        val queue = ArrayDeque<Node<String>>()
-        val distance = mutableMapOf<Node<String>, Long>().withDefault { 0 }
+        val queue = ArrayDeque<Vertex<String>>()
+        val distance = mutableMapOf<Vertex<String>, Long>().withDefault { 0 }
 
         queue.add(start)
         while (queue.isNotEmpty()) {
             val next = queue.removeFirst()
-            adjacent(next).forEach { adjacent ->
+            validNeighbors(next).forEach { adjacent ->
                 if (!distance.contains(adjacent)) {
                     distance[adjacent] = distance.getValue(next) + 1
                     queue.add(adjacent)
@@ -105,59 +110,60 @@ data class PipeMaze(private val grid: Grid<String>) {
                     else -> false
                 }
             }.map {
-                Vertex(it.x, it.y)
+                Vertex(it.id, it.value)
             }
 
-        val area: Long = Math.area(vertices) // Total area including boundary nodes
-        return Math.area(area, loop.size) // Area without boundary nodes
+        val area = vertices.mapNotNull { graph.coordinates(it) }.area() // Total area including boundary vertices
+        return Math.area(area, loop.size) // Area without boundary vertices
     }
 
     /**
-     * Gets all valid adjacent [Node] for the given node.
-     * @param node Node.
-     * @return Valid adjacent nodes.
+     * Find the list of [Vertex] that comprise the pipe loop in this pipe maze.
+     * @return Vertices starting with S and ending with a vertex adjacent to S.
      */
-    private fun adjacent(node: Node<String>) =
-        // Only some kinds of values are legitimate adjacent nodes for the purposes of finding
-        // distances, paths, enclosures, so filter the output from the underlying grid
-        grid.adjacent(node) { adjacent, direction ->
-            val validSymbols =
-                when (direction) {
-                    Direction.LEFT -> validLefts
-                    Direction.UP -> validTops
-                    Direction.DOWN -> validBottoms
-                    Direction.RIGHT -> validRights
-                    else -> mapOf()
-                }
-            validSymbols[node.value]?.contains(adjacent.value) ?: false
-        }
-
-    /**
-     * Find the list of [Node] that comprise the pipe loop in this pipe maze.
-     * @return Nodes starting with S and ending with a node adjacent to S.
-     */
-    private fun findLoop(): List<Node<String>> {
-        val loop = mutableListOf<Node<String>>()
+    private fun findLoop(): List<Vertex<String>> {
+        val loop = mutableListOf<Vertex<String>>()
 
         val start = start()
-        var node = start
+        var vertex = start
         do {
-            val adjacent = adjacent(node).toMutableList()
+            val adjacent = validNeighbors(vertex).toMutableList()
             if (loop.isNotEmpty()) {
                 adjacent.remove(loop.last()) // Force forward movement
             }
 
-            loop.add(node)
-            node = adjacent.first()
-        } while (node != start)
+            loop.add(vertex)
+            vertex = adjacent.first()
+        } while (vertex != start)
 
         return loop
     }
 
     /**
-     * Gets the start node for this maze.
-     * @return Start node.
-     * @throws IllegalArgumentException Thrown if this maze has no start node.
+     * Gets all valid neighbors for the given [Vertex]. A
+     * @param vertex Vertex.
+     * @return Valid neighbors.
      */
-    private fun start() = grid.find { it == "S" } ?: throw IllegalArgumentException("Pipe maze has no starting node.")
+    private fun validNeighbors(vertex: Vertex<String>) =
+        graph.neighbors(vertex).filter {
+            val validSymbols =
+                when (graph.direction(vertex, it)) {
+                    Direction.LEFT -> validLefts
+                    Direction.UP -> validTops
+                    Direction.DOWN -> validBottoms
+                    Direction.RIGHT -> validRights
+                    else -> emptyMap()
+                }
+            validSymbols[vertex.value]?.contains(it.value) ?: false
+        }
+
+    /**
+     * Gets the start [Vertex] for this maze.
+     * @return Start vertex.
+     * @throws IllegalArgumentException Thrown if this maze has no start vertex.
+     */
+    private fun start() =
+        graph.find {
+            it.value == "S"
+        } ?: throw IllegalArgumentException("Pipe maze has no starting vertex.")
 }

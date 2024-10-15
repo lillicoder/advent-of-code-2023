@@ -2,6 +2,7 @@ package com.lillicoder.adventofcode2023.grids
 
 import com.lillicoder.adventofcode2023.io.Resources
 import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode2023.math.Direction
 import kotlin.math.abs
 
 /**
