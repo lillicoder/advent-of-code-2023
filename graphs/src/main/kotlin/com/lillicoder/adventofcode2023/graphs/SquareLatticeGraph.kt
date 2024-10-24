@@ -64,6 +64,38 @@ class SquareLatticeGraph<T>(
     } ?: Direction.UNKNOWN
 
     /**
+     * Gets each column of [Vertex] in this graph in index order.
+     * Vertices in each column are in row index order.
+     * @return Rows.
+     */
+    fun columns() =
+        vertexByCoordinates.keys.groupBy {
+            it.x
+        }.mapValues { entry ->
+            entry.value.map {
+                vertexByCoordinates[it]!!
+            }
+        }.map {
+            it.value
+        }
+
+    /**
+     * Gets each row of [Vertex] in this graph in index order.
+     * Vertices in each row are in column index order.
+     * @return Rows.
+     */
+    fun rows() =
+        vertexByCoordinates.keys.groupBy {
+            it.y
+        }.mapValues { entry ->
+            entry.value.map {
+                vertexByCoordinates[it]!!
+            }
+        }.map {
+            it.value
+        }
+
+    /**
      * [Graph.Builder] for [SquareLatticeGraph] instances.
      * @param coordinatesByVertex Each [Vertex] mapped to its Cartesian coordinates.
      * @param vertexByCoordinates Each Cartesian coordinate mapped to its vertex.

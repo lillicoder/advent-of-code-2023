@@ -15,8 +15,7 @@ internal class Day10Test {
            >|F--J
            >LJ...
         """.trimMargin(">")
-
-    private val grid1 = PipeMaze(input1.gridToGraph())
+    private val graph1 = PipeMaze(input1.gridToGraph())
 
     private val input2 =
         """.F----7F7F7F7F-7....
@@ -30,21 +29,21 @@ internal class Day10Test {
             >....FJL-7.||.||||...
             >....L---J.LJ.LJLJ...
         """.trimMargin(">")
-    private val grid2 = PipeMaze(input2.gridToGraph())
+    private val graph2 = PipeMaze(input2.gridToGraph())
 
     private val day10 = Day10()
 
     @Test
     fun part1() {
         val expected = 8L
-        val actual = day10.part1(grid1)
+        val actual = day10.part1(graph1)
         assertEquals(expected, actual)
     }
 
     @Test
     fun part2() {
         val expected = 8L
-        val actual = day10.part2(grid2)
+        val actual = day10.part2(graph2)
         assertEquals(expected, actual)
     }
 }

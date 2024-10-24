@@ -35,6 +35,13 @@ data class Coordinates(
     fun cross(coordinates: Coordinates) = (x * coordinates.y) - (coordinates.x * y)
 
     /**
+     * Gets the Manhattan distance of these [Coordinates] with the given coordinates.
+     * @param coordinates Coordinates.
+     * @return Manhattan distance.
+     */
+    fun distance(coordinates: Coordinates) = abs(x - coordinates.x) + abs(y - coordinates.y)
+
+    /**
      * Creates a new [Coordinates] whose second value is incremented.
      * @return Coordinates.
      */
