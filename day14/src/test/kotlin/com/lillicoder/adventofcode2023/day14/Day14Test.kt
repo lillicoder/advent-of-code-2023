@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.day14
 
-import com.lillicoder.adventofcode2023.grids.Grid
+import com.lillicoder.adventofcode2023.graphs.gridToGraph
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -20,20 +20,20 @@ internal class Day14Test {
            |#....###..
            |#OO..#....
         """.trimMargin()
-    private val grid = Grid.create(input.lines())
+    private val graph = input.gridToGraph()
     private val day14 = Day14()
 
     @Test
     fun part1() {
         val expected = 136L
-        val actual = day14.part1(grid)
+        val actual = day14.part1(graph)
         assertEquals(expected, actual)
     }
 
     @Test
     fun part2() {
         val expected = 64L
-        val actual = day14.part2(grid)
+        val actual = day14.part2(graph)
         assertEquals(expected, actual)
     }
 }

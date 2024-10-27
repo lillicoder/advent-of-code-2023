@@ -1,29 +1,35 @@
 package com.lillicoder.adventofcode2023.day14
 
-import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.Node
+import com.lillicoder.adventofcode2023.graphs.Graph
+import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode2023.graphs.Vertex
+import com.lillicoder.adventofcode2023.graphs.gridToGraph
+import com.lillicoder.adventofcode2023.io.Resources
 import com.lillicoder.adventofcode2023.io.splitMap
 import com.lillicoder.adventofcode2023.io.splitNotEmpty
 import com.lillicoder.adventofcode2023.math.Direction
 
 fun main() {
     val day14 = Day14()
-    val grid = Grid.read("input.txt")
-    println("The total load for a single tilt to the north is ${day14.part1(grid)}.")
-    println("The total load for a 1000000000 cycles is ${day14.part2(grid)}.")
+    val graph =
+        Resources.text(
+            "input.txt",
+        )?.gridToGraph() ?: throw IllegalArgumentException("Could not read input from file.")
+    println("The total load for a single tilt to the north is ${day14.part1(graph)}.")
+    println("The total load for a 1000000000 cycles is ${day14.part2(graph)}.")
 }
 
 class Day14 {
-    fun part1(grid: Grid<String>) =
-        grid.tiltedLoad(
+    fun part1(graph: SquareLatticeGraph<String>) =
+        graph.tiltedLoad(
             listOf(
                 Direction.UP,
             ),
             1,
         )
 
-    fun part2(grid: Grid<String>) =
-        grid.tiltedLoad(
+    fun part2(graph: SquareLatticeGraph<String>) =
+        graph.tiltedLoad(
             listOf(
                 Direction.UP,
                 Direction.LEFT,
@@ -35,13 +41,13 @@ class Day14 {
 }
 
 /**
- * Gets the load for this [Grid] after tilting it in each
+ * Gets the load for this [Graph] after tilting it in each
  * given [Direction] for the given number of cycles.
  * @param order Directions to tilt.
  * @param cycles Number of cycles to tilt.
  * @return Tilted load.
  */
-private fun Grid<String>.tiltedLoad(
+private fun SquareLatticeGraph<String>.tiltedLoad(
     order: List<Direction>,
     cycles: Int,
 ): Long {
@@ -66,58 +72,58 @@ private fun Grid<String>.tiltedLoad(
 }
 
 /**
- * Gets the load for the this [Grid].
+ * Gets the load for the this [Graph].
  * @return Load.
  */
-private fun Grid<String>.load() =
-    countNodesByRow {
-        it.value == "O"
+private fun SquareLatticeGraph<String>.load() =
+    rows().map { row ->
+        row.count { it.value == "O" }
     }.mapIndexed { index, count ->
         // Load of a row = number of rocks * distance from edge
         count * (height - index)
     }.sum().toLong()
 
 /**
- * Tilts this [Grid] in each of the given [Direction].
+ * Tilts this [Graph] in each of the given [Direction].
  * @param directions Directions to tilt.
- * @return Tilted grid.
+ * @return Tilted graph.
  */
-private fun Grid<String>.tilt(directions: List<Direction>) =
-    directions.fold(this) { grid, direction ->
-        grid.tilt(direction)
+private fun SquareLatticeGraph<String>.tilt(directions: List<Direction>) =
+    directions.fold(this) { graph, direction ->
+        graph.tilt(direction)
     }
 
 /**
- * Tilts this [Grid] in the given [Direction].
+ * Tilts this [Graph] in the given [Direction].
  * @param direction Direction to tilt.
- * @return Tilted grid.
+ * @return Tilted graph.
  */
-private fun Grid<String>.tilt(direction: Direction): Grid<String> {
+private fun SquareLatticeGraph<String>.tilt(direction: Direction): SquareLatticeGraph<String> {
     val comparator = TiltComparator(direction)
     val tilted =
         when (direction) {
             Direction.LEFT, Direction.RIGHT -> {
-                mapRows {
+                rows().map {
                     it.tilt(comparator)
                 }
             }
             Direction.DOWN, Direction.UP -> {
-                mapColumns {
+                columns().map {
                     it.tilt(comparator)
-                }.columnsToRows() // Convert columns to rows before making grid to ensure proper order
+                }.columnsToRows() // Convert columns to rows before making graph to ensure proper order
             }
             else -> emptyList()
         }
 
-    return Grid.create(tilted)
+    return tilted.joinToString(System.lineSeparator()).gridToGraph()
 }
 
 /**
- * Tilts this row or column of [Node] based on the given [Comparator].
- * @param comparator Comparator to determine node order.
+ * Tilts this row or column of [Vertex] based on the given [Comparator].
+ * @param comparator Comparator to determine vertex order.
  * @return Tilted row or column as a string.
  */
-private fun List<Node<String>>.tilt(comparator: Comparator<String>) =
+private fun List<Vertex<String>>.tilt(comparator: Comparator<String>) =
     joinToString("") {
         it.value
     }.splitMap("#") { // Split by cubes, sort each chunk to roll the spheres, and put the cubes back
@@ -158,15 +164,15 @@ private fun List<String>.columnsToRows() =
     }
 
 /**
- * [Comparator] of node values based on a given tilt [Direction].
+ * [Comparator] of vertex values based on a given tilt [Direction].
  */
 private class TiltComparator(private val direction: Direction) : Comparator<String> {
     override fun compare(
-        node: String,
+        vertex: String,
         other: String,
     ): Int {
-        if (node == other) return 0
-        return when (node) {
+        if (vertex == other) return 0
+        return when (vertex) {
             "O" -> {
                 when (direction) {
                     Direction.UP, Direction.LEFT -> -1

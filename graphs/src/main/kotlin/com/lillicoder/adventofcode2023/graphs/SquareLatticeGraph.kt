@@ -101,6 +101,13 @@ class SquareLatticeGraph<T>(
      */
     fun rows() = rows.map { it.value }
 
+    override fun toString() =
+        rows.values.joinToString(System.lineSeparator()) { row ->
+            row.joinToString("") {
+                it.value.toString()
+            }
+        }
+
     /**
      * [Graph.Builder] for [SquareLatticeGraph] instances.
      * @param coordinatesByVertex Each [Vertex] mapped to its Cartesian coordinates.
