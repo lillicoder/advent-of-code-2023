@@ -16,6 +16,7 @@
 
 package com.lillicoder.adventofcode2023.graphs
 
+import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
 import com.lillicoder.adventofcode2023.math.to
 
 /**
@@ -36,3 +37,10 @@ fun String.gridToGraph(allowDiagonals: Boolean = false): SquareLatticeGraph<Stri
 
     return builder.build(allowDiagonals)
 }
+
+/**
+ * Converts this string to a list of [SquareLatticeGraph]. Each graph is considered
+ * to be separated by two line breaks.
+ * @return Graphs.
+ */
+fun String.gridsToGraph() = splitMapNotEmpty("${lineSequence()}${lineSequence()}") { it.gridToGraph() }

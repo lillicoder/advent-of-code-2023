@@ -1,39 +1,44 @@
 package com.lillicoder.adventofcode2023.day13
 
-import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.Node
+import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode2023.graphs.Vertex
+import com.lillicoder.adventofcode2023.graphs.gridsToGraph
+import com.lillicoder.adventofcode2023.io.Resources
 
 fun main() {
     val day13 = Day13()
-    val grids = Grid.readAll("input.txt")
-    println("Sum of reflections of the grids is ${day13.part1(grids)}.")
-    println("Sum of reflections w/ smudges is ${day13.part2(grids)}.")
+    val graphs =
+        Resources.text(
+            "input.txt",
+        )?.gridsToGraph() ?: throw IllegalArgumentException("Could not read input from file.")
+    println("Sum of reflections of the graphs is ${day13.part1(graphs)}.")
+    println("Sum of reflections w/ smudges is ${day13.part2(graphs)}.")
 }
 
 class Day13 {
-    fun part1(grids: List<Grid<String>>) = grids.sumOf { it.countReflectedColumnsAndRows(false) }
+    fun part1(graphs: List<SquareLatticeGraph<String>>) = graphs.sumOf { it.countReflectedColumnsAndRows(false) }
 
-    fun part2(grids: List<Grid<String>>) = grids.sumOf { it.countReflectedColumnsAndRows(true) }
+    fun part2(graphs: List<SquareLatticeGraph<String>>) = graphs.sumOf { it.countReflectedColumnsAndRows(true) }
 }
 
 /**
- * Gets the number of [Node] whose values differ at each position of the given lists.
+ * Gets the number of [Vertex] whose values differ at each position of the given lists.
  * @param first First list.
  * @param second Second list.
  * @return Count of mismatches.
  */
 private fun countMismatches(
-    first: List<Node<String>>,
-    second: List<Node<String>>,
+    first: List<Vertex<String>>,
+    second: List<Vertex<String>>,
 ) = first.map { it.value }.zip(second.map { it.value }).count { it.first != it.second }
 
 /**
- * Counts the number of columns and rows from a reflection point in this [Grid].
+ * Counts the number of columns and rows from a reflection point in this [SquareLatticeGraph].
  * @param allowSmudge True to allow symmetry when a single symbol doesn't match for a row or column pair.
  * @return Count of column to the left of the vertical reflection point, if any, or
  * the count of rows above the vertical reflection point times 100, if any.
  */
-private fun Grid<String>.countReflectedColumnsAndRows(allowSmudge: Boolean = false): Long {
+private fun SquareLatticeGraph<String>.countReflectedColumnsAndRows(allowSmudge: Boolean = false): Long {
     // Try to find the horizontal reflection (if any)
     val horizontalIndex = findHorizontalSymmetry(allowSmudge)
     if (horizontalIndex > -1) return (horizontalIndex + 1L) * 100L
@@ -46,11 +51,11 @@ private fun Grid<String>.countReflectedColumnsAndRows(allowSmudge: Boolean = fal
 }
 
 /**
- * Finds the row index of horizontal symmetry for this [Grid].
+ * Finds the row index of horizontal symmetry for this [SquareLatticeGraph].
  * @param allowSmudge True if symmetry includes rows with a single symbol mismatch.
  * @return Row index or -1 if there was no point of symmetry found.
  */
-private fun Grid<String>.findHorizontalSymmetry(allowSmudge: Boolean = false): Long {
+private fun SquareLatticeGraph<String>.findHorizontalSymmetry(allowSmudge: Boolean = false): Long {
     for (index in 0..<height - 1) {
         if (hasHorizontalSymmetry(index, allowSmudge)) return index.toLong()
     }
@@ -59,11 +64,11 @@ private fun Grid<String>.findHorizontalSymmetry(allowSmudge: Boolean = false): L
 }
 
 /**
- * Finds the column index of vertical symmetry for this [Grid].
+ * Finds the column index of vertical symmetry for this [SquareLatticeGraph].
  * @param allowSmudge True if symmetry includes columns with a single symbol mismatch.
  * @return Column index or -1 if there was no point of symmetry found.
  */
-private fun Grid<String>.findVerticalSymmetry(allowSmudge: Boolean = false): Long {
+private fun SquareLatticeGraph<String>.findVerticalSymmetry(allowSmudge: Boolean = false): Long {
     for (index in 0..<width - 1) {
         if (hasVerticalSymmetry(index, allowSmudge)) return index.toLong()
     }
@@ -72,12 +77,12 @@ private fun Grid<String>.findVerticalSymmetry(allowSmudge: Boolean = false): Lon
 }
 
 /**
- * Checks this [Grid] for horizontal symmetry starting from the given row index.
+ * Checks this [SquareLatticeGraph] for horizontal symmetry starting from the given row index.
  * @param index Starting row index.
  * @param allowSmudge True if symmetry includes rows with a single symbol mismatch.
- * @return True if grid is symmetrical, false otherwise.
+ * @return True if graph is symmetrical, false otherwise.
  */
-private fun Grid<String>.hasHorizontalSymmetry(
+private fun SquareLatticeGraph<String>.hasHorizontalSymmetry(
     index: Int,
     allowSmudge: Boolean = false,
 ): Boolean {
@@ -86,8 +91,8 @@ private fun Grid<String>.hasHorizontalSymmetry(
 
     var mismatches = 0L
     while (start >= 0 && end < height) {
-        val first = row(start)
-        val second = row(end)
+        val first = row(start) ?: emptyList()
+        val second = row(end) ?: emptyList()
         mismatches += countMismatches(first, second)
 
         start--
@@ -98,12 +103,12 @@ private fun Grid<String>.hasHorizontalSymmetry(
 }
 
 /**
- * Checks this [Grid] for vertical symmetry starting from the given column index.
+ * Checks this [SquareLatticeGraph] for vertical symmetry starting from the given column index.
  * @param index Starting column index.
  * @param allowSmudge True if symmetry includes columns with a single symbol mismatch.
- * @return True if grid is symmetrical, false otherwise.
+ * @return True if graph is symmetrical, false otherwise.
  */
-private fun Grid<String>.hasVerticalSymmetry(
+private fun SquareLatticeGraph<String>.hasVerticalSymmetry(
     index: Int,
     allowSmudge: Boolean = false,
 ): Boolean {
@@ -113,8 +118,8 @@ private fun Grid<String>.hasVerticalSymmetry(
 
     var mismatches = 0L
     while (start >= 0 && end < width) {
-        val first = column(start)
-        val second = column(end)
+        val first = column(start) ?: emptyList()
+        val second = column(end) ?: emptyList()
         mismatches += countMismatches(first, second)
 
         start--

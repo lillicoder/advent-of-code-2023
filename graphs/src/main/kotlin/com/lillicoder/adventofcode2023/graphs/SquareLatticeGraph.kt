@@ -29,6 +29,16 @@ class SquareLatticeGraph<T>(
     private val graph: Graph<T>,
     private val coordinatesByVertex: Map<Vertex<T>, Coordinates>,
     private val vertexByCoordinates: Map<Coordinates, Vertex<T>>,
+    private val columns: Map<Long, List<Vertex<T>>> =
+        vertexByCoordinates.keys.groupBy(Coordinates::x).mapValues { entry ->
+            entry.value.map { vertexByCoordinates[it]!! }
+        },
+    private val rows: Map<Long, List<Vertex<T>>> =
+        vertexByCoordinates.keys.groupBy(Coordinates::y).mapValues { entry ->
+            entry.value.map { vertexByCoordinates[it]!! }
+        },
+    val height: Int = rows.size,
+    val width: Int = columns.size,
 ) : Graph<T> by graph {
     private constructor(builder: Builder<T>) : this(
         AdjacencyListGraph(builder),
@@ -64,36 +74,32 @@ class SquareLatticeGraph<T>(
     } ?: Direction.UNKNOWN
 
     /**
+     * Gets the column of [Vertex] for the given column index.
+     * @param index Column index.
+     * @return Column or null if there is no column for the given index.
+     */
+    fun column(index: Int) = columns[index.toLong()]
+
+    /**
      * Gets each column of [Vertex] in this graph in index order.
      * Vertices in each column are in row index order.
      * @return Rows.
      */
-    fun columns() =
-        vertexByCoordinates.keys.groupBy {
-            it.x
-        }.mapValues { entry ->
-            entry.value.map {
-                vertexByCoordinates[it]!!
-            }
-        }.map {
-            it.value
-        }
+    fun columns() = columns.map { it.value }
+
+    /**
+     * Gets the row of [Vertex] for the given row index.
+     * @param index Row index.
+     * @return Row or null if there is no row for the given index.
+     */
+    fun row(index: Int) = rows[index.toLong()]
 
     /**
      * Gets each row of [Vertex] in this graph in index order.
      * Vertices in each row are in column index order.
      * @return Rows.
      */
-    fun rows() =
-        vertexByCoordinates.keys.groupBy {
-            it.y
-        }.mapValues { entry ->
-            entry.value.map {
-                vertexByCoordinates[it]!!
-            }
-        }.map {
-            it.value
-        }
+    fun rows() = rows.map { it.value }
 
     /**
      * [Graph.Builder] for [SquareLatticeGraph] instances.
