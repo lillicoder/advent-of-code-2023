@@ -1,62 +1,68 @@
 package com.lillicoder.adventofcode2023.day16
 
-import com.lillicoder.adventofcode2023.grids.Grid
-import com.lillicoder.adventofcode2023.grids.Node
+import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode2023.graphs.Vertex
+import com.lillicoder.adventofcode2023.graphs.gridToGraph
+import com.lillicoder.adventofcode2023.io.Resources
 import com.lillicoder.adventofcode2023.math.Direction
 
 fun main() {
     val day16 = Day16()
-    val grid = Grid.read("input.txt")
-    println("The total number of tiles that are energized is ${day16.part1(grid)}.")
-    println("The maximum number of tiles that can be energized is ${day16.part2(grid)}.")
+    val graph =
+        Resources.text(
+            "input.txt",
+        )?.gridToGraph() ?: throw IllegalArgumentException("Could not read input from file.")
+    println("The total number of tiles that are energized is ${day16.part1(graph)}.")
+    println("The maximum number of tiles that can be energized is ${day16.part2(graph)}.")
 }
 
 class Day16 {
-    fun part1(grid: Grid<String>) =
+    fun part1(graph: SquareLatticeGraph<String>) =
         Beam(
-            grid.first(),
+            graph.first(),
             Direction.RIGHT,
         ).propagate(
-            grid,
+            graph,
         )
 
-    fun part2(grid: Grid<String>) =
+    fun part2(graph: SquareLatticeGraph<String>) =
         (
-            grid.row(0).map { Beam(it, Direction.DOWN) } + // top edge
-                grid.column(0).map { Beam(it, Direction.RIGHT) } + // left edge
-                grid.column(grid.width - 1).map { Beam(it, Direction.LEFT) } + // right edge
-                grid.row(grid.height - 1).map { Beam(it, Direction.UP) } // bottom edge
-        ).maxOf { it.propagate(grid) }
+            graph.rows().first().map { Beam(it, Direction.DOWN) } + // top edge
+                graph.columns().first().map { Beam(it, Direction.RIGHT) } + // left edge
+                graph.columns().last().map { Beam(it, Direction.LEFT) } + // right edge
+                graph.rows().last().map { Beam(it, Direction.UP) } // bottom edge
+        ).maxOf { it.propagate(graph) }
 }
 
 /**
  * Represents a beam propagating through a mirror maze.
- * @param head Current node for the tip of the beam.
- * @param direction Current direction.
+ * @param head Current [Vertex] for the tip of the beam.
+ * @param direction Current [Direction].
  */
 data class Beam(
-    val head: Node<String>,
+    val head: Vertex<String>,
     val direction: Direction,
 ) {
     /**
-     * Propagates this [Beam] through the given [Grid].
-     * @param grid Grid to propagate through.
-     * @return Number of energized nodes in the grid after propagation.
+     * Propagates this [Beam] through the given [SquareLatticeGraph].
+     * @param graph Graph to propagate through.
+     * @return Number of energized vertices in the graph after propagation.
      */
-    fun propagate(grid: Grid<String>): Long {
+    fun propagate(graph: SquareLatticeGraph<String>): Long {
         val visited = mutableMapOf<Beam, Boolean>()
-        propagate(grid, visited)
+        propagate(graph, visited)
 
         return visited.keys.map { it.head }.distinct().count().toLong()
     }
 
     /**
-     * Propagates this [Beam] through the given [Grid], making each node visited in the given map.
-     * @param grid Grid to propagate through.
-     * @param visited Map to mark visited nodes.
+     * Propagates this [Beam] through the given [SquareLatticeGraph],
+     * marking each vertex visited in the given map.
+     * @param graph Graph to propagate through.
+     * @param visited Map to mark visited vertices.
      */
     private fun propagate(
-        grid: Grid<String>,
+        graph: SquareLatticeGraph<String>,
         visited: MutableMap<Beam, Boolean>,
     ) {
         if (visited.contains(this)) return
@@ -67,32 +73,31 @@ data class Beam(
         // Move the beam through the maze from its current position
         val beams =
             when (head.value) {
-                "\\", "/" -> reflect(grid)
-                "-", "|" -> split(grid)
-                else -> advance(grid)
+                "\\", "/" -> reflect(graph)
+                "-", "|" -> split(graph)
+                else -> advance(graph)
             }
-        beams.forEach { it.propagate(grid, visited) }
+        beams.forEach { it.propagate(graph, visited) }
     }
 
     /**
-     * Advances this beam to its next node in the given [Grid] for its current direction.
-     * @param grid Grid.
-     * @return Advanced beam or an empty list if this beam has escaped the grid.
+     * Advances this beam to its next vertex in the given [SquareLatticeGraph] for its current direction.
+     * @param graph Graph.
+     * @return Advanced beam or an empty list if this beam has escaped the graph.
      */
-    private fun advance(grid: Grid<String>) =
-        grid.adjacent(
-            head,
-            direction,
-        )?.let {
-            listOf(Beam(it, direction))
-        } ?: emptyList()
+    private fun advance(graph: SquareLatticeGraph<String>) =
+        when (val neighbor = graph.neighbor(head, direction)) {
+            null -> emptyList()
+            else -> listOf(Beam(neighbor, direction))
+        }
 
     /**
-     * Reflects this beam to its next node in the given [Grid] for its current direction.
-     * @param grid Grid.
-     * @return Reflected beam or an empty list if this beam has escaped the grid.
+     * Reflects this beam to its next vertex in the given
+     * [SquareLatticeGraph] for its current direction.
+     * @param graph Graph.
+     * @return Reflected beam or an empty list if this beam has escaped the graph.
      */
-    private fun reflect(grid: Grid<String>): List<Beam> {
+    private fun reflect(graph: SquareLatticeGraph<String>): List<Beam> {
         val reflection =
             when (head.value) {
                 "/" -> {
@@ -116,16 +121,17 @@ data class Beam(
                 else -> direction
             }
 
-        val next = grid.adjacent(head, reflection)
+        val next = graph.neighbor(head, reflection)
         return next?.let { listOf(Beam(next, reflection)) } ?: emptyList()
     }
 
     /**
-     * Splits this beam to its next nodes in the given [Grid] for its current direction.
-     * @param grid Grid.
+     * Splits this beam to its next vertices in the given
+     * [SquareLatticeGraph] for its current direction.
+     * @param graph Graph.
      * @return Split beams.
      */
-    private fun split(grid: Grid<String>): List<Beam> {
+    private fun split(graph: SquareLatticeGraph<String>): List<Beam> {
         val directions =
             when (head.value) {
                 "-" -> {
@@ -144,10 +150,10 @@ data class Beam(
             }
 
         return when (directions.isEmpty()) {
-            true -> advance(grid)
+            true -> advance(graph)
             false -> {
                 directions.mapNotNull { direction ->
-                    val next = grid.adjacent(head, direction)
+                    val next = graph.neighbor(head, direction)
                     next?.let { Beam(it, direction) }
                 }
             }

@@ -54,18 +54,6 @@ data class Coordinates(
     fun left() = copy(x = x.dec())
 
     /**
-     * Creates a new [Coordinates] whose first value is incremented.
-     * @return Coordinates.
-     */
-    fun right() = copy(x = x.inc())
-
-    /**
-     * Creates a new [Coordinates] whose second value is decremented.
-     * @return Coordinates.
-     */
-    fun up() = copy(y = y.dec())
-
-    /**
      * Creates a new [Coordinates] whose first value is decremented and its second value is incremented.
      * @return Coordinates.
      */
@@ -78,6 +66,12 @@ data class Coordinates(
     fun leftUp() = copy(x = x.dec(), y = y.dec())
 
     /**
+     * Creates a new [Coordinates] whose first value is incremented.
+     * @return Coordinates.
+     */
+    fun right() = copy(x = x.inc())
+
+    /**
      * Creates a new [Coordinates] whose values are incremented.
      * @return Coordinates.
      */
@@ -88,6 +82,27 @@ data class Coordinates(
      * @return Coordinates.
      */
     fun rightUp() = copy(x = x.inc(), y = y.dec())
+
+    /**
+     * Shifts these coordinates in the given [Direction].
+     * @param direction Direction.
+     * @return Shifted coordinates or the original coordinates
+     * if the given direction is [Direction.UNKNOWN].
+     */
+    fun shift(direction: Direction) =
+        when (direction) {
+            Direction.UP -> up()
+            Direction.DOWN -> down()
+            Direction.LEFT -> left()
+            Direction.RIGHT -> right()
+            Direction.UNKNOWN -> this
+        }
+
+    /**
+     * Creates a new [Coordinates] whose second value is decremented.
+     * @return Coordinates.
+     */
+    fun up() = copy(y = y.dec())
 
     override fun toString() = "($x, $y)"
 }

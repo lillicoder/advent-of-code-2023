@@ -47,6 +47,20 @@ class SquareLatticeGraph<T>(
     )
 
     /**
+     * Gets the column of [Vertex] for the given column index.
+     * @param index Column index.
+     * @return Column or null if there is no column for the given index.
+     */
+    fun column(index: Int) = columns[index.toLong()]
+
+    /**
+     * Gets each column of [Vertex] in this graph in index order.
+     * Vertices in each column are in row index order.
+     * @return Rows.
+     */
+    fun columns() = columns.map { it.value }
+
+    /**
      * Gets the [Coordinates] for the given [Vertex].
      * @param vertex Vertex.
      * @Return Coordinates or null if there are no coordinates for the given vertex.
@@ -74,18 +88,15 @@ class SquareLatticeGraph<T>(
     } ?: Direction.UNKNOWN
 
     /**
-     * Gets the column of [Vertex] for the given column index.
-     * @param index Column index.
-     * @return Column or null if there is no column for the given index.
+     * Gets the [Vertex] neighboring the given vertex in the given direction.
+     * @param vertex Vertex.
+     * @param direction Direction.
+     * @return Neighboring vertex or null if there is no neighbor in the given direction.
      */
-    fun column(index: Int) = columns[index.toLong()]
-
-    /**
-     * Gets each column of [Vertex] in this graph in index order.
-     * Vertices in each column are in row index order.
-     * @return Rows.
-     */
-    fun columns() = columns.map { it.value }
+    fun neighbor(
+        vertex: Vertex<T>,
+        direction: Direction,
+    ) = vertexByCoordinates[coordinatesByVertex[vertex]?.shift(direction)]
 
     /**
      * Gets the row of [Vertex] for the given row index.
