@@ -1,25 +1,25 @@
 package com.lillicoder.adventofcode2023.day1
 
-import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode.kotlin.io.Resources
 
 fun main() {
     val day1 = Day1()
-    val calibrationDocument =
+    val input =
         Resources.lines(
             "input.txt",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
-    println("[Part 1] The sum of calibration values is ${day1.part1(calibrationDocument)}.")
-    println("[Part 2] The sum of calibration values is ${day1.part2(calibrationDocument)}.")
+    println("[Part 1] The sum of calibration values is ${day1.part1(input)}.")
+    println("[Part 2] The sum of calibration values is ${day1.part2(input)}.")
 }
 
 class Day1 {
-    fun part1(document: List<String>) =
-        document.sumOf { line ->
+    fun part1(input: List<String>) =
+        input.sumOf { line ->
             "${line.first { it.isDigit() }}${line.last { it.isDigit() }}".toInt()
         }.toLong()
 
-    fun part2(document: List<String>) =
-        document.sumOf { line ->
+    fun part2(input: List<String>) =
+        input.sumOf { line ->
             line.joinFirstAndLastDigits()
         }.toLong()
 }
