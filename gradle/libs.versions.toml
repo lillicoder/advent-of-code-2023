@@ -1,7 +1,14 @@
 [versions]
+advent-of-code = "1.6.0"
 kotlin = "1.9.21"
 
 [libraries]
+advent-of-code-kotlin-collections = { module = "com.github.lillicoder.advent-of-code-kotlin:collections", version.ref = "advent-of-code" }
+advent-of-code-kotlin-graphs = { module = "com.github.lillicoder.advent-of-code-kotlin:graphs", version.ref = "advent-of-code" }
+advent-of-code-kotlin-grids = { module = "com.github.lillicoder.advent-of-code-kotlin:grids", version.ref = "advent-of-code" }
+advent-of-code-kotlin-io = { module = "com.github.lillicoder.advent-of-code-kotlin:io", version.ref = "advent-of-code" }
+advent-of-code-kotlin-math = { module = "com.github.lillicoder.advent-of-code-kotlin:math", version.ref = "advent-of-code" }
+advent-of-code-kotlin-text = { module = "com.github.lillicoder.advent-of-code-kotlin:text", version.ref = "advent-of-code" }
 kotlin-stdlib = { module = "org.jetbrains.kotlin:kotlin-stdlib", version.ref = "kotlin" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 
