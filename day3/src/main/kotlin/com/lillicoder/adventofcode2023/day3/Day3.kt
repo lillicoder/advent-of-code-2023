@@ -1,53 +1,53 @@
 package com.lillicoder.adventofcode2023.day3
 
-import com.lillicoder.adventofcode2023.graphs.Graph
-import com.lillicoder.adventofcode2023.graphs.Vertex
-import com.lillicoder.adventofcode2023.graphs.gridToGraph
-import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode.kotlin.collections.split
+import com.lillicoder.adventofcode.kotlin.graphs.Graph
+import com.lillicoder.adventofcode.kotlin.graphs.gridToGraph
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.math.Vertex
 
 fun main() {
     val day3 = Day3()
-    val schematic =
-        Resources.text("input.txt")?.gridToGraph(allowDiagonals = true)?.toSchematic()
-            ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The sum of all part numbers in the schematic is ${day3.part1(schematic)}.")
-    println("The sum of all gear ratios in the schematic is ${day3.part2(schematic)}.")
+    val input =
+        Resources.text(
+            "input.txt"
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The sum of all part numbers in the schematic is ${day3.part1(input)}.")
+    println("[Part 2] The sum of all gear ratios in the schematic is ${day3.part2(input)}.")
 }
 
 class Day3 {
-    fun part1(schematic: Schematic) =
-        schematic.numbers.sumOf { number ->
-            when (schematic.isAnyNeighborToNonPeriodNonNumericSymbol(number)) {
-                true -> number.join()
-                false -> 0
+    fun part1(input: String) =
+        input.gridToGraph(
+            allowDiagonals = true
+        ).toSchematic().let { schematic ->
+            schematic.numbers.sumOf {
+                when (schematic.isAnyNeighborToNonPeriodNonNumericSymbol(it)) {
+                    true -> it.join()
+                    false -> 0
+                }
             }
         }
 
-    fun part2(schematic: Schematic) = schematic.gears().sumOf { it.ratio }
+    fun part2(input: String) =
+        input.gridToGraph(
+            allowDiagonals = true
+        ).toSchematic().gears().sumOf {
+            it.ratio
+        }
 }
 
 /**
  * Converts this graph to an equivalent [Schematic].
  * @return Schematic.
  */
-internal fun Graph<String>.toSchematic(): Schematic {
-    val numbers = mutableListOf<List<Vertex<String>>>()
-    val buffer = mutableListOf<Vertex<String>>()
-    forEach { vertex ->
-        when (vertex.value.toIntOrNull() != null) {
-            true -> buffer.add(vertex) // Found a number, accumulate
-            false -> {
-                if (buffer.isNotEmpty()) {
-                    // No longer on a number, flush accumulator
-                    numbers.add(buffer.toList())
-                    buffer.clear()
-                }
-            }
+private fun Graph<String>.toSchematic() =
+    Schematic(
+        this,
+        toList().split {
+            it.value.toIntOrNull() == null
         }
-    }
-
-    return Schematic(this, numbers)
-}
+    )
 
 /**
  * Joins the values of this list of [Vertex] into a single number.
@@ -61,7 +61,7 @@ private fun List<Vertex<String>>.join() = joinToString("") { it.value }.toInt()
  * @param neighbors Part numbers neighboring this gear in a schematic.
  * @param ratio Gear ratio.
  */
-data class Gear(
+private data class Gear(
     val vertex: Vertex<String>,
     val neighbors: List<Int>,
     val ratio: Int = neighbors.reduce { accumulator, element -> accumulator * element },
@@ -72,7 +72,7 @@ data class Gear(
  * @param graph Graph of all vertices in this schematic.
  * @param numbers List of all number vertex sets in this schematic.
  */
-data class Schematic(
+private data class Schematic(
     val graph: Graph<String>,
     val numbers: List<List<Vertex<String>>>,
 ) {
