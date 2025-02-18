@@ -1,30 +1,37 @@
 package com.lillicoder.adventofcode2023.day2
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 
 fun main() {
     val day2 = Day2()
-    val games =
-        Resources.mapLines(
+    val input =
+        Resources.lines(
             "input.txt",
-        ) {
-            it.toGame()
-        } ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The sum of all valid game IDs is ${day2.part1(games)}.")
-    println("The sum of all minimum cubes powers is ${day2.part2(games)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The sum of all valid game IDs is ${day2.part1(input)}.")
+    println("[Part 2] The sum of all minimum cubes powers is ${day2.part2(input)}.")
 }
 
 class Day2 {
-    fun part1(games: List<Game>) = games.sumOf { if (it.isValid) it.id else 0 }
+    fun part1(input: List<String>) =
+        input.map {
+            it.toGame()
+        }.sumOf {
+            if (it.isValid) it.id else 0
+        }
 
-    fun part2(games: List<Game>) =
-        games.sumOf { game ->
+    fun part2(input: List<String>) =
+        input.map {
+            it.toGame()
+        }.sumOf { game ->
             listOf(
                 game.rounds.maxByOrNull { it.blue.count }?.blue?.count ?: 0,
                 game.rounds.maxByOrNull { it.green.count }?.green?.count ?: 0,
                 game.rounds.maxByOrNull { it.red.count }?.red?.count ?: 0,
-            ).reduce { accumulator, element -> accumulator * element }
+            ).reduce { accumulator, element ->
+                accumulator * element
+            }
         }
 }
 
@@ -33,7 +40,7 @@ class Day2 {
  * in any given pull of a round of a game.
  * @param max Maximum amount of this color allowed in any given pull of cubes in a round.
  */
-enum class Color(val max: Int) {
+private enum class Color(val max: Int) {
     BLUE(14),
     GREEN(13),
     RED(12),
@@ -45,7 +52,7 @@ enum class Color(val max: Int) {
  * @param rounds Game rounds.
  * @param isValid True if this is a valid game, false otherwise.
  */
-data class Game(
+private data class Game(
     val id: Int,
     val rounds: List<Round>,
     val isValid: Boolean = rounds.all { it.isValid },
@@ -58,7 +65,7 @@ data class Game(
  * @param red Red [Pull].
  * @param isValid True if this is a valid round, false otherwise.
  */
-data class Round(
+private data class Round(
     val blue: Pull,
     val green: Pull,
     val red: Pull,
@@ -71,7 +78,7 @@ data class Round(
  * @param count Number of cubes pulled.
  * @param isValid True if this is a valid pull, false otherwise.
  */
-data class Pull(
+private data class Pull(
     val color: Color,
     val count: Int,
     val isValid: Boolean = count <= color.max,
@@ -81,9 +88,9 @@ data class Pull(
  * Converts this string to an equivalent [Game].
  * @return Game.
  */
-internal fun String.toGame(): Game {
+private fun String.toGame(): Game {
     val id = substringBefore(": ").substringAfter("Game ").toInt()
-    val rounds = substringAfter(": ").splitMapNotEmpty("; ") { it.toRound() }
+    val rounds = substringAfter(": ").splitNotEmpty("; ").map { it.toRound() }
     return Game(id, rounds)
 }
 
@@ -104,7 +111,9 @@ private fun String.toPull(): Pull {
  */
 private fun String.toRound(): Round {
     val pulls =
-        splitMapNotEmpty(", ") {
+        splitNotEmpty(
+            ", "
+        ).map {
             it.toPull()
         }.associateBy {
             it.color
