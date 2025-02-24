@@ -1,27 +1,29 @@
 package com.lillicoder.adventofcode2023.day6
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.normalizeLineSeparators
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 
 fun main() {
     val day6 = Day6()
-    val races =
+    val input =
         Resources.text(
             "input.txt",
-        )?.toRaces() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("Total possible winning permutations is ${day6.part1(races)}.")
-    println("Total possible winning permutations as one race is ${day6.part2(races)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] Total possible winning permutations is ${day6.part1(input)}.")
+    println("[Part 2] Total possible winning permutations as one race is ${day6.part2(input)}.")
 }
 
 class Day6 {
-    fun part1(races: List<Race>) =
-        races.map {
+    fun part1(input: String) =
+        input.normalizeLineSeparators().toRaces().map {
             it.countWaysToSetRecord()
         }.reduce { accumulator, count ->
             accumulator * count
         }
 
-    fun part2(races: List<Race>): Long {
+    fun part2(input: String): Long {
+        val races = input.normalizeLineSeparators().toRaces()
         val time = races.joinToString("") { it.duration.toString() }
         val distance = races.joinToString("") { it.bestDistance.toString() }
         return Race(
@@ -36,7 +38,7 @@ class Day6 {
  * @param duration Duration of a race in milliseconds.
  * @param bestDistance Best distance ran in this race.
  */
-data class Race(
+private data class Race(
     val duration: Long,
     val bestDistance: Long,
 ) {
@@ -70,12 +72,11 @@ data class Race(
 
 /**
  * Converts this string to an equivalent list of [Race].
- * @param separator Line separator.
  * @return Races.
  */
-internal fun String.toRaces(separator: String = System.lineSeparator()): List<Race> {
-    val sections = split(separator)
-    val times = sections[0].substringAfter(":").splitMapNotEmpty(" ") { it.toLong() }
-    val distances = sections[1].substringAfter(":").splitMapNotEmpty(" ") { it.toLong() }
+private fun String.toRaces(): List<Race> {
+    val sections = lines()
+    val times = sections[0].substringAfter(":").splitNotEmpty(" ").map { it.toLong() }
+    val distances = sections[1].substringAfter(":").splitNotEmpty(" ").map { it.toLong() }
     return times.zip(distances).map { Race(it.first, it.second) }
 }

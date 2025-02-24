@@ -8,23 +8,23 @@ import kotlin.test.assertEquals
  */
 internal class Day6Test {
     private val input =
-        """Time:      7  15   30
-           |Distance:  9  40  200
-        """.trimMargin()
-    private val races = input.toRaces("\n")
+        """
+        Time:      7  15   30
+        Distance:  9  40  200
+        """.trimIndent()
     private val day6 = Day6()
 
     @Test
     fun part1() {
         val expected = 288L
-        val actual = day6.part1(races)
+        val actual = day6.part1(input)
         assertEquals(expected, actual)
     }
 
     @Test
     fun part2() {
         val expected = 71503L
-        val actual = day6.part2(races)
+        val actual = day6.part2(input)
         assertEquals(expected, actual)
     }
 }
