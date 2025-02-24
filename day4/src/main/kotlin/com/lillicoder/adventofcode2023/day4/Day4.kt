@@ -1,25 +1,23 @@
 package com.lillicoder.adventofcode2023.day4
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 import kotlin.math.pow
 
 fun main() {
     val day4 = Day4()
-    val cards =
-        Resources.mapLines(
+    val input =
+        Resources.lines(
             "input.txt",
-        ) {
-            it.toScratchcard()
-        } ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The total score of the given scratchcards is ${day4.part1(cards)}.")
-    println("The total count of cards, including clones, is ${day4.part2(cards)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The total score of the given scratchcards is ${day4.part1(input)}.")
+    println("[Part 2] The total count of cards, including clones, is ${day4.part2(input)}.")
 }
 
 class Day4 {
-    fun part1(cards: List<Scratchcard>) = cards.sumOf { it.score }
+    fun part1(input: List<String>) = input.map { it.toScratchcard() }.sumOf { it.score }
 
-    fun part2(cards: List<Scratchcard>) = cards.countWithWinners()
+    fun part2(input: List<String>) = input.map { it.toScratchcard() }.countWithWinners()
 }
 
 /**
@@ -31,7 +29,7 @@ class Day4 {
  * @param score Score based on number of matches.
  *
  */
-data class Scratchcard(
+private data class Scratchcard(
     val id: Int,
     val winningNumbers: List<Int>,
     val playNumbers: List<Int>,
@@ -48,7 +46,7 @@ data class Scratchcard(
  * cards that get copied due to having one or more matches.
  * @return Count.
  */
-fun List<Scratchcard>.countWithWinners(): Int {
+private fun List<Scratchcard>.countWithWinners(): Int {
     // We start with 1 of each card
     val frequency = associate { it.id to 1 }.toMutableMap()
     forEachIndexed { index, card ->
@@ -67,7 +65,7 @@ fun List<Scratchcard>.countWithWinners(): Int {
  * Converts this string to an equivalent [Scratchcard].
  * @return Scratchcard.
  */
-internal fun String.toScratchcard(): Scratchcard {
+private fun String.toScratchcard(): Scratchcard {
     val id = substringBefore(":").substringAfter("Card ").trim().toInt()
     val blocks = substringAfter(": ").split(" | ")
 

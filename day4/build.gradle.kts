@@ -1,5 +1,6 @@
 dependencies {
-    implementation(project(":io"))
+    implementation(libs.advent.of.code.kotlin.io)
+    implementation(libs.advent.of.code.kotlin.text)
     implementation(libs.kotlin.stdlib)
     testImplementation(libs.kotlin.test)
 }
