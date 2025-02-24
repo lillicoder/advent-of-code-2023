@@ -1,22 +1,22 @@
 package com.lillicoder.adventofcode2023.day9
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 
 fun main() {
     val day9 = Day9()
-    val readings =
+    val input =
         Resources.lines(
             "input.txt",
-        )?.toReadings() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The sum of all next predictions for all sequences is ${day9.part1(readings)}.")
-    println("The sum of all previous predictions for all sequences is ${day9.part2(readings)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The sum of all next predictions for all sequences is ${day9.part1(input)}.")
+    println("[Part 2] The sum of all previous predictions for all sequences is ${day9.part2(input)}.")
 }
 
 class Day9 {
-    fun part1(readings: List<List<Long>>) = readings.sumOf { it.predictNext() }
+    fun part1(input: List<String>) = input.toReadings().sumOf { it.predictNext() }
 
-    fun part2(readings: List<List<Long>>) = readings.sumOf { it.predictPreceding() }
+    fun part2(input: List<String>) = input.toReadings().sumOf { it.predictPreceding() }
 }
 
 /**
@@ -59,9 +59,9 @@ private fun List<Long>.predictNext(): Long {
  * Converts these strings to an equivalent list of readings.
  * @return Readings.
  */
-internal fun List<String>.toReadings() =
+private fun List<String>.toReadings() =
     map { string ->
-        string.splitMapNotEmpty(" ") { digit ->
+        string.splitNotEmpty(" ").map { digit ->
             digit.toLong()
         }
     }
