@@ -1,23 +1,24 @@
 package com.lillicoder.adventofcode2023.day8
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitNotEmpty
-import com.lillicoder.adventofcode2023.math.Math
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.math.Math
+import com.lillicoder.adventofcode.kotlin.text.normalizeLineSeparators
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 
 fun main() {
     val day8 = Day8()
-    val network =
+    val input =
         Resources.text(
             "input.txt",
-        )?.toNetwork() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("Total number of steps required to navigate the network is ${day8.part1(network)}.")
-    println("Total number of steps required to navigate the network for a ghost is ${day8.part2(network)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("Total number of steps required to navigate the network is ${day8.part1(input)}.")
+    println("Total number of steps required to navigate the network for a ghost is ${day8.part2(input)}.")
 }
 
 class Day8 {
-    fun part1(network: Network) = network.stepsRequiredToNavigateWholeNodes()
+    fun part1(input: String) = input.normalizeLineSeparators().toNetwork().stepsRequiredToNavigateWholeNodes()
 
-    fun part2(network: Network) = network.stepsRequiredToNavigatePartialNodes()
+    fun part2(input: String) = input.normalizeLineSeparators().toNetwork().stepsRequiredToNavigatePartialNodes()
 }
 
 /**
@@ -25,7 +26,7 @@ class Day8 {
  * @param instructions Navigation instructions (e.g. "RL").
  * @param nodes Map of nodes keyed by node ID.
  */
-data class Network(
+private data class Network(
     val instructions: String,
     val nodes: Map<String, Node>,
 ) {
@@ -129,7 +130,7 @@ data class Network(
  * @param left Left node ID.
  * @param right Right node ID.
  */
-data class Node(
+private data class Node(
     val id: String,
     var left: String? = null,
     var right: String? = null,
@@ -137,15 +138,14 @@ data class Node(
 
 /**
  * Converts this string to an equivalent [Network].
- * @param separator Line separator.
  * @return Network.
  */
-internal fun String.toNetwork(separator: String = System.lineSeparator()): Network {
-    val parts = split("$separator$separator")
+private fun String.toNetwork(): Network {
+    val parts = split("${System.lineSeparator()}${System.lineSeparator()}")
     val instructions = parts[0] // First line is instructions
 
     val nodes = mutableMapOf<String, Node>()
-    val rawNodes = parts[1].split(separator).sorted() // Second part is a line-separated list of nodes
+    val rawNodes = parts[1].lines().sorted() // Second part is a line-separated list of nodes
     rawNodes.forEach { node ->
         // Node format is ID = (leftId, rightId)
         // e.g. AAA = (BBB, CCC)
