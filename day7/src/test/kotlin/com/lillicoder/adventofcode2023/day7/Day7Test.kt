@@ -8,27 +8,26 @@ import kotlin.test.assertEquals
  */
 internal class Day7Test {
     private val input =
-        """32T3K 765
-           |T55J5 684
-           |KK677 28
-           |KTJJT 220
-           |QQQJA 483
-        """.trimMargin()
-    private val hands = input.lines().toHands { it != Card.JOKER }
-    private val jokerHands = input.lines().toHands { true }
+        """
+        32T3K 765
+        T55J5 684
+        KK677 28
+        KTJJT 220
+        QQQJA 483
+        """.trimIndent().lines()
     private val day7 = Day7()
 
     @Test
     fun part1() {
         val expected = 6440L
-        val actual = day7.part1(hands)
+        val actual = day7.part1(input)
         assertEquals(expected, actual)
     }
 
     @Test
     fun part2() {
         val expected = 5905L
-        val actual = day7.part2(jokerHands)
+        val actual = day7.part2(input)
         assertEquals(expected, actual)
     }
 }

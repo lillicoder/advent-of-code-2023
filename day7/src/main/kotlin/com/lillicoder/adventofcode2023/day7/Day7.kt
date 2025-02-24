@@ -1,7 +1,7 @@
 package com.lillicoder.adventofcode2023.day7
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 
 fun main() {
     val day7 = Day7()
@@ -9,22 +9,20 @@ fun main() {
         Resources.lines(
             "input.txt",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
-    val hands = input.toHands { it != Card.JOKER } // Don't allow jokers
-    val jokerHands = input.toHands { true } // Allow all cards
-    println("[Normal] Total winnings for the given hands is ${day7.part1(hands)}.")
-    println("[Jokers] Total winnings for the given hands is ${day7.part2(jokerHands)}.")
+    println("[Part 1] Total winnings for the given hands is ${day7.part1(input)}.")
+    println("[Part 2] Total winnings for the given hands is ${day7.part2(input)}.")
 }
 
 class Day7 {
-    fun part1(hands: List<Hand>) = hands.winnings()
+    fun part1(input: List<String>) = input.toHands { it != Card.JOKER }.winnings() // Don't allow jokers
 
-    fun part2(hands: List<Hand>) = hands.winnings()
+    fun part2(input: List<String>) = input.toHands().winnings() // Allow all cards
 }
 
 /**
  * Represents a single card in a hand.
  */
-enum class Card(
+private enum class Card(
     val symbol: String,
 ) {
     JOKER("J"),
@@ -46,7 +44,7 @@ enum class Card(
 /**
  * Represents the rank of a hand in a game of Camel Cards.
  */
-enum class Rank {
+private enum class Rank {
     HIGH_CARD,
     ONE_PAIR,
     TWO_PAIR,
@@ -61,7 +59,7 @@ enum class Rank {
  * @param cards Cards for this hand.
  * @param bid Bid.
  */
-data class Hand(
+private data class Hand(
     val cards: List<Card>,
     val bid: Int,
 ) : Comparable<Hand> {
@@ -77,24 +75,24 @@ data class Hand(
      * Counts the cards in this hand.
      * @return Map of card to how often it appears in this hand.
      */
-    private fun countCards(): Map<Card, Int> = cards.groupingBy { it }.eachCount()
+    private fun countCards() = cards.groupingBy { it }.eachCount()
 
     /**
      * Determines the [Rank] of this hand.
      * @return Hand rank.
      */
-    private fun rank(): Rank {
-        val counts = countCards()
-        if (isFiveOfAKind(counts)) return Rank.FIVE_OF_A_KIND
-        if (isFourOfAKind(counts)) return Rank.FOUR_OF_A_KIND
-        if (isFullHouse(counts)) return Rank.FULL_HOUSE
-        if (isThreeOfAKind(counts)) return Rank.THREE_OF_A_KIND
-        if (isTwoPair(counts)) return Rank.TWO_PAIR
-        if (isOnePair(counts)) return Rank.ONE_PAIR
-
-        // High card - only option left (should have grouped 5 keys)
-        return Rank.HIGH_CARD
-    }
+    private fun rank() =
+        countCards().let { counts ->
+            when {
+                isFiveOfAKind(counts) -> Rank.FIVE_OF_A_KIND
+                isFourOfAKind(counts) -> Rank.FOUR_OF_A_KIND
+                isFullHouse(counts) -> Rank.FULL_HOUSE
+                isThreeOfAKind(counts) -> Rank.THREE_OF_A_KIND
+                isTwoPair(counts) -> Rank.TWO_PAIR
+                isOnePair(counts) -> Rank.ONE_PAIR
+                else -> Rank.HIGH_CARD
+            }
+        }
 
     /**
      * Determines if this hand is a five of a kind.
@@ -243,7 +241,7 @@ private fun List<Hand>.winnings() =
  * @param filter Filter for which card types are allowed.
  * @return Hands.
  */
-internal fun List<String>.toHands(filter: (Card) -> Boolean) =
+private fun List<String>.toHands(filter: (Card) -> Boolean = { true }) =
     map {
         val parts = it.split(" ")
         Hand(parts[0].toCards(filter), parts[1].toInt())
@@ -278,4 +276,4 @@ private fun String.toCard(filter: (Card) -> Boolean) =
  * @param filter Filter for which card types are allowed.
  * @return Cards.
  */
-private fun String.toCards(filter: (Card) -> Boolean): List<Card> = splitMapNotEmpty("") { it.toCard(filter) }
+private fun String.toCards(filter: (Card) -> Boolean): List<Card> = splitNotEmpty("").map { it.toCard(filter) }
