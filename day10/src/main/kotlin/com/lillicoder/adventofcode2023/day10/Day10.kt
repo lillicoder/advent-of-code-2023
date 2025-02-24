@@ -1,33 +1,33 @@
 package com.lillicoder.adventofcode2023.day10
 
-import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
-import com.lillicoder.adventofcode2023.graphs.Vertex
-import com.lillicoder.adventofcode2023.graphs.gridToGraph
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.math.Direction
-import com.lillicoder.adventofcode2023.math.Math
-import com.lillicoder.adventofcode2023.math.area
+import com.lillicoder.adventofcode.kotlin.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode.kotlin.graphs.gridToGraph
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.math.Direction
+import com.lillicoder.adventofcode.kotlin.math.Math
+import com.lillicoder.adventofcode.kotlin.math.Vertex
+import com.lillicoder.adventofcode.kotlin.math.area
 
 fun main() {
     val day10 = Day10()
-    val graph =
-        Resources.text("input.txt")?.gridToGraph()
-            ?: throw IllegalArgumentException("Could not read input from file.")
-    val maze = PipeMaze(graph)
-    println("The max distance for the loop in the pipe maze is ${day10.part1(maze)}.")
-    println("The area of enclosures spaces is ${day10.part2(maze)}.")
+    val input =
+        Resources.text(
+            "input.txt"
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The max distance for the loop in the pipe maze is ${day10.part1(input)}.")
+    println("[Part 2] The area of enclosures spaces is ${day10.part2(input)}.")
 }
 
 class Day10 {
-    fun part1(maze: PipeMaze) = maze.maxDistanceFromStart()
+    fun part1(maze: String) = maze.toPipeMaze().maxDistanceFromStart()
 
-    fun part2(maze: PipeMaze) = maze.enclosedArea()
+    fun part2(maze: String) = maze.toPipeMaze().enclosedArea()
 }
 
 /**
  * Represents an arbitrary grid of pipes. It's not really a maze but whatever.
  */
-data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
+private data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
     private val validTops =
         mapOf(
             "|" to listOf("|", "7", "F", "S"),
@@ -114,7 +114,7 @@ data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
             }
 
         val area = vertices.mapNotNull { graph.coordinates(it) }.area() // Total area including boundary vertices
-        return Math.area(area, loop.size) // Area without boundary vertices
+        return Math.area(area, loop.size.toLong()) // Area without boundary vertices
     }
 
     /**
@@ -167,3 +167,9 @@ data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
             it.value == "S"
         } ?: throw IllegalArgumentException("Pipe maze has no starting vertex.")
 }
+
+/**
+ * Converts this string to an equivalent [PipeMaze].
+ * @return Pipe maze.
+ */
+private fun String.toPipeMaze() = PipeMaze(this.gridToGraph())
