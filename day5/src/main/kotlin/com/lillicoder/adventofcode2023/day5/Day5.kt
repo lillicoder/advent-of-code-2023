@@ -1,25 +1,32 @@
 package com.lillicoder.adventofcode2023.day5
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.normalizeLineSeparators
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 import kotlin.math.min
 
 fun main() {
     val day5 = Day5()
-    val almanac =
+    val input =
         Resources.text(
             "input.txt",
-        )?.toAlmanac() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The lowest location number for all input single seed numbers is ${day5.part1(almanac)}.")
-    println("The lowest location number for all input seed number ranges is ${day5.part2(almanac)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The lowest location number for all input single seed numbers is ${day5.part1(input)}.")
+    println("[Part 2] The lowest location number for all input seed number ranges is ${day5.part2(input)}.")
 }
 
 class Day5 {
-    fun part1(almanac: Almanac) = almanac.seeds.minOfOrNull { almanac.findLowestLocation(it) }
+    fun part1(input: String) =
+        input.normalizeLineSeparators().toAlmanac().let { almanac ->
+            almanac.seeds.minOfOrNull {
+                almanac.findLowestLocation(it)
+            }
+        }
 
-    fun part2(almanac: Almanac): Long {
+    fun part2(input: String): Long {
         var lowestLocationNumber = Long.MAX_VALUE
 
+        val almanac = input.normalizeLineSeparators().toAlmanac()
         almanac.seeds.windowed(2, 2).forEach { pair ->
             // First value is seed, second value is range
             for (seed in pair.first()..(pair.sum())) {
@@ -42,7 +49,7 @@ class Day5 {
  * @param temperatureToHumidity [Mapping]s of temperature ID to humidity ID.
  * @param humidityToLocation [Mapping]s of humidity ID to location ID.
  */
-data class Almanac(
+private data class Almanac(
     val seeds: List<Long>,
     val seedToSoil: List<Mapping>,
     val soilToFertilizer: List<Mapping>,
@@ -75,7 +82,7 @@ data class Almanac(
  * @param sourceStart Source range start.
  * @param range Range length.
  */
-data class Mapping(
+private data class Mapping(
     val destinationStart: Long,
     val sourceStart: Long,
     val range: Long,
@@ -114,27 +121,26 @@ private fun List<Mapping>.findMatch(source: Long) =
 
 /**
  * Converts this string to an equivalent [Almanac].
- * @param separator Line separator to use when converting.
  * @return Almanac.
  */
-internal fun String.toAlmanac(separator: String = System.lineSeparator()): Almanac {
-    val sections = split("$separator$separator")
+private fun String.toAlmanac(): Almanac {
+    val sections = split("${System.lineSeparator()}${System.lineSeparator()}")
 
     // First section is seeds list; format: `seeds: ### ### ###`
-    val seeds = sections[0].substringAfter(":").splitMapNotEmpty(" ") { it.toLong() }
+    val seeds = sections[0].substringAfter(":").splitNotEmpty(" ").map { it.toLong() }
 
     // All maps are a heading line followed by 3 numbers, e.g.:
     //
     // label:
     // ### ### ###
     // ### ### ###
-    val seedToSoil = sections[1].toMappings(separator)
-    val soilToFertilizer = sections[2].toMappings(separator)
-    val fertilizerToWater = sections[3].toMappings(separator)
-    val waterToLight = sections[4].toMappings(separator)
-    val lightToTemperature = sections[5].toMappings(separator)
-    val temperatureToHumidity = sections[6].toMappings(separator)
-    val humidityToLocation = sections[7].toMappings(separator)
+    val seedToSoil = sections[1].toMappings()
+    val soilToFertilizer = sections[2].toMappings()
+    val fertilizerToWater = sections[3].toMappings()
+    val waterToLight = sections[4].toMappings()
+    val lightToTemperature = sections[5].toMappings()
+    val temperatureToHumidity = sections[6].toMappings()
+    val humidityToLocation = sections[7].toMappings()
     return Almanac(
         seeds,
         seedToSoil,
@@ -149,15 +155,14 @@ internal fun String.toAlmanac(separator: String = System.lineSeparator()): Alman
 
 /**
  * Converts this string to an equivalent list of [Mapping].
- * @param separator Line separator to use when converting.
  * @return Mappings
  */
-private fun String.toMappings(separator: String) =
+private fun String.toMappings() =
     substringAfter(
         ":",
-    ).splitMapNotEmpty(
-        separator,
-    ) { line ->
-        val parts = line.splitMapNotEmpty(" ") { it.toLong() }
+    ).splitNotEmpty(
+        System.lineSeparator(),
+    ).map { line ->
+        val parts = line.splitNotEmpty(" ").map { it.toLong() }
         Mapping(parts[0], parts[1], parts[2])
     }
