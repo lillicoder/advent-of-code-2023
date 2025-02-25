@@ -1,24 +1,31 @@
 package com.lillicoder.adventofcode2023.day13
 
-import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
-import com.lillicoder.adventofcode2023.graphs.Vertex
-import com.lillicoder.adventofcode2023.graphs.gridsToGraph
-import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode.kotlin.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode.kotlin.graphs.gridsToGraphs
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.math.Vertex
+import com.lillicoder.adventofcode.kotlin.text.normalizeLineSeparators
 
 fun main() {
     val day13 = Day13()
-    val graphs =
+    val input =
         Resources.text(
             "input.txt",
-        )?.gridsToGraph() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("Sum of reflections of the graphs is ${day13.part1(graphs)}.")
-    println("Sum of reflections w/ smudges is ${day13.part2(graphs)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] Sum of reflections of the graphs is ${day13.part1(input)}.")
+    println("[Part 2] Sum of reflections with smudges is ${day13.part2(input)}.")
 }
 
 class Day13 {
-    fun part1(graphs: List<SquareLatticeGraph<String>>) = graphs.sumOf { it.countReflectedColumnsAndRows(false) }
+    fun part1(input: String) =
+        input.normalizeLineSeparators().gridsToGraphs().sumOf {
+            it.countReflectedColumnsAndRows(false)
+        }
 
-    fun part2(graphs: List<SquareLatticeGraph<String>>) = graphs.sumOf { it.countReflectedColumnsAndRows(true) }
+    fun part2(input: String) =
+        input.normalizeLineSeparators().gridsToGraphs().sumOf {
+            it.countReflectedColumnsAndRows(true)
+        }
 }
 
 /**
