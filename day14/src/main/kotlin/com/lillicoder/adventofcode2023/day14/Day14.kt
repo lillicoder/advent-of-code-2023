@@ -1,35 +1,33 @@
 package com.lillicoder.adventofcode2023.day14
 
-import com.lillicoder.adventofcode2023.graphs.Graph
-import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
-import com.lillicoder.adventofcode2023.graphs.Vertex
-import com.lillicoder.adventofcode2023.graphs.gridToGraph
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMap
-import com.lillicoder.adventofcode2023.io.splitNotEmpty
-import com.lillicoder.adventofcode2023.math.Direction
+import com.lillicoder.adventofcode.kotlin.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode.kotlin.graphs.gridToGraph
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.math.Direction
+import com.lillicoder.adventofcode.kotlin.math.Vertex
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 
 fun main() {
     val day14 = Day14()
-    val graph =
+    val input =
         Resources.text(
             "input.txt",
-        )?.gridToGraph() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The total load for a single tilt to the north is ${day14.part1(graph)}.")
-    println("The total load for a 1000000000 cycles is ${day14.part2(graph)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The total load for a single tilt to the north is ${day14.part1(input)}.")
+    println("[Part 2] The total load for a 1000000000 cycles is ${day14.part2(input)}.")
 }
 
 class Day14 {
-    fun part1(graph: SquareLatticeGraph<String>) =
-        graph.tiltedLoad(
+    fun part1(input: String) =
+        input.gridToGraph().tiltedLoad(
             listOf(
                 Direction.UP,
             ),
             1,
         )
 
-    fun part2(graph: SquareLatticeGraph<String>) =
-        graph.tiltedLoad(
+    fun part2(input: String) =
+        input.gridToGraph().tiltedLoad(
             listOf(
                 Direction.UP,
                 Direction.LEFT,
@@ -41,7 +39,7 @@ class Day14 {
 }
 
 /**
- * Gets the load for this [Graph] after tilting it in each
+ * Gets the load for this [SquareLatticeGraph] after tilting it in each
  * given [Direction] for the given number of cycles.
  * @param order Directions to tilt.
  * @param cycles Number of cycles to tilt.
@@ -72,7 +70,7 @@ private fun SquareLatticeGraph<String>.tiltedLoad(
 }
 
 /**
- * Gets the load for the this [Graph].
+ * Gets the load for the this [SquareLatticeGraph].
  * @return Load.
  */
 private fun SquareLatticeGraph<String>.load() =
@@ -84,7 +82,7 @@ private fun SquareLatticeGraph<String>.load() =
     }.sum().toLong()
 
 /**
- * Tilts this [Graph] in each of the given [Direction].
+ * Tilts this [SquareLatticeGraph] in each of the given [Direction].
  * @param directions Directions to tilt.
  * @return Tilted graph.
  */
@@ -94,7 +92,7 @@ private fun SquareLatticeGraph<String>.tilt(directions: List<Direction>) =
     }
 
 /**
- * Tilts this [Graph] in the given [Direction].
+ * Tilts this [SquareLatticeGraph] in the given [Direction].
  * @param direction Direction to tilt.
  * @return Tilted graph.
  */
@@ -126,7 +124,7 @@ private fun SquareLatticeGraph<String>.tilt(direction: Direction): SquareLattice
 private fun List<Vertex<String>>.tilt(comparator: Comparator<String>) =
     joinToString("") {
         it.value
-    }.splitMap("#") { // Split by cubes, sort each chunk to roll the spheres, and put the cubes back
+    }.split("#").map { // Split by cubes, sort each chunk to roll the spheres, and put the cubes back
         it.splitNotEmpty(
             "",
         ).sortedWith(
