@@ -1,37 +1,41 @@
 package com.lillicoder.adventofcode2023.day16
 
-import com.lillicoder.adventofcode2023.graphs.SquareLatticeGraph
-import com.lillicoder.adventofcode2023.graphs.Vertex
-import com.lillicoder.adventofcode2023.graphs.gridToGraph
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.math.Direction
+import com.lillicoder.adventofcode.kotlin.graphs.SquareLatticeGraph
+import com.lillicoder.adventofcode.kotlin.graphs.gridToGraph
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.math.Direction
+import com.lillicoder.adventofcode.kotlin.math.Vertex
 
 fun main() {
     val day16 = Day16()
     val graph =
         Resources.text(
             "input.txt",
-        )?.gridToGraph() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The total number of tiles that are energized is ${day16.part1(graph)}.")
-    println("The maximum number of tiles that can be energized is ${day16.part2(graph)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The total number of tiles that are energized is ${day16.part1(graph)}.")
+    println("[Part 2] The maximum number of tiles that can be energized is ${day16.part2(graph)}.")
 }
 
 class Day16 {
-    fun part1(graph: SquareLatticeGraph<String>) =
-        Beam(
-            graph.first(),
-            Direction.RIGHT,
-        ).propagate(
-            graph,
-        )
+    fun part1(input: String) =
+        input.gridToGraph().let {
+            Beam(
+                it.first(),
+                Direction.RIGHT,
+            ).propagate(
+                it,
+            )
+        }
 
-    fun part2(graph: SquareLatticeGraph<String>) =
-        (
-            graph.rows().first().map { Beam(it, Direction.DOWN) } + // top edge
-                graph.columns().first().map { Beam(it, Direction.RIGHT) } + // left edge
-                graph.columns().last().map { Beam(it, Direction.LEFT) } + // right edge
-                graph.rows().last().map { Beam(it, Direction.UP) } // bottom edge
-        ).maxOf { it.propagate(graph) }
+    fun part2(input: String) =
+        input.gridToGraph().let { graph ->
+            (
+                graph.rows().first().map { Beam(it, Direction.DOWN) } + // top edge
+                    graph.columns().first().map { Beam(it, Direction.RIGHT) } + // left edge
+                    graph.columns().last().map { Beam(it, Direction.LEFT) } + // right edge
+                    graph.rows().last().map { Beam(it, Direction.UP) } // bottom edge
+                ).maxOf { it.propagate(graph) }
+        }
 }
 
 /**
@@ -39,7 +43,7 @@ class Day16 {
  * @param head Current [Vertex] for the tip of the beam.
  * @param direction Current [Direction].
  */
-data class Beam(
+private data class Beam(
     val head: Vertex<String>,
     val direction: Direction,
 ) {
