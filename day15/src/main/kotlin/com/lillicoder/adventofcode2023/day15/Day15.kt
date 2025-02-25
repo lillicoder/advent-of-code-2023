@@ -1,6 +1,6 @@
 package com.lillicoder.adventofcode2023.day15
 
-import com.lillicoder.adventofcode2023.io.Resources
+import com.lillicoder.adventofcode.kotlin.io.Resources
 import kotlin.streams.asSequence
 
 fun main() {
@@ -8,21 +8,19 @@ fun main() {
     val input =
         Resources.text(
             "input.txt",
-        )?.split(
-            ",",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The total of hashes for the given input is ${day15.part1(input)}.")
-    println("The total focusing power of loaded lenses is ${day15.part2(input)}.")
+    println("[Part 1] The total of hashes for the given input is ${day15.part1(input)}.")
+    println("[Part 2] The total focusing power of loaded lenses is ${day15.part2(input)}.")
 }
 
 class Day15 {
-    fun part1(input: List<String>) = input.sumOf { it.hash() }
+    fun part1(input: String) = input.split(",").sumOf { it.hash() }
 
-    fun part2(input: List<String>): Long {
+    fun part2(input: String): Long {
         // Put lenses into one of 256 'boxes'; using LinkedHashMap to preserve insertion
         // order for keys and to get O(1) insert/remove performance
         val boxes = MutableList(256) { LinkedHashMap<String, Int>() }
-        input.forEach { raw ->
+        input.split(",").forEach { raw ->
             val (label, focal) = raw.toInstructions()
             val box = boxes[label.hash().toInt()]
             when (focal?.isNotEmpty()) {
