@@ -103,14 +103,13 @@ private fun List<String>.toRows() = map { it.toRow() }
  * @param factor Fold factor. Defaults to 1.
  * @return Sum of valid arrangements.
  */
-private fun List<Row>.arrangements(
-    factor: Int = 1,
-) = mutableMapOf<String, Long>().let { cache ->
-    sumOf {
-        val expanded = it.expand(factor)
-        cache.arrangements(expanded)
+private fun List<Row>.arrangements(factor: Int = 1) =
+    mutableMapOf<String, Long>().let { cache ->
+        sumOf {
+            val expanded = it.expand(factor)
+            cache.arrangements(expanded)
+        }
     }
-}
 
 /**
  * Gets the number of valid arrangements for the given [Row] from this map.

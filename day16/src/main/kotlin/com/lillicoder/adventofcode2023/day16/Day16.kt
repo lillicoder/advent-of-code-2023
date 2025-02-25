@@ -34,7 +34,7 @@ class Day16 {
                     graph.columns().first().map { Beam(it, Direction.RIGHT) } + // left edge
                     graph.columns().last().map { Beam(it, Direction.LEFT) } + // right edge
                     graph.rows().last().map { Beam(it, Direction.UP) } // bottom edge
-                ).maxOf { it.propagate(graph) }
+            ).maxOf { it.propagate(graph) }
         }
 }
 

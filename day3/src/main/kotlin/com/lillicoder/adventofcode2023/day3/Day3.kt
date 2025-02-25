@@ -10,7 +10,7 @@ fun main() {
     val day3 = Day3()
     val input =
         Resources.text(
-            "input.txt"
+            "input.txt",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
     println("[Part 1] The sum of all part numbers in the schematic is ${day3.part1(input)}.")
     println("[Part 2] The sum of all gear ratios in the schematic is ${day3.part2(input)}.")
@@ -19,7 +19,7 @@ fun main() {
 class Day3 {
     fun part1(input: String) =
         input.gridToGraph(
-            allowDiagonals = true
+            allowDiagonals = true,
         ).toSchematic().let { schematic ->
             schematic.numbers.sumOf {
                 when (schematic.isAnyNeighborToNonPeriodNonNumericSymbol(it)) {
@@ -31,7 +31,7 @@ class Day3 {
 
     fun part2(input: String) =
         input.gridToGraph(
-            allowDiagonals = true
+            allowDiagonals = true,
         ).toSchematic().gears().sumOf {
             it.ratio
         }
@@ -46,7 +46,7 @@ private fun Graph<String>.toSchematic() =
         this,
         toList().split {
             it.value.toIntOrNull() == null
-        }
+        },
     )
 
 /**

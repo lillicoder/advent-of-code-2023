@@ -12,7 +12,7 @@ fun main() {
     val day10 = Day10()
     val input =
         Resources.text(
-            "input.txt"
+            "input.txt",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
     println("[Part 1] The max distance for the loop in the pipe maze is ${day10.part1(input)}.")
     println("[Part 2] The area of enclosures spaces is ${day10.part2(input)}.")

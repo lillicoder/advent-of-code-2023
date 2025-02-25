@@ -11,7 +11,7 @@ fun main() {
     val day11 = Day11()
     val input =
         Resources.text(
-            "input.txt"
+            "input.txt",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
     println("[Part 1] The shortest path for all pairs of galaxies is ${day11.part1(input)}. [factor=2]")
     println("[Part 2] The shortest path for all pairs of galaxies is ${day11.part2(input)}. [factor=1,000,000]")

@@ -112,7 +112,7 @@ private fun String.toPull(): Pull {
 private fun String.toRound(): Round {
     val pulls =
         splitNotEmpty(
-            ", "
+            ", ",
         ).map {
             it.toPull()
         }.associateBy {
