@@ -1,29 +1,29 @@
 package com.lillicoder.adventofcode2023.day12
 
-import com.lillicoder.adventofcode2023.io.Resources
-import com.lillicoder.adventofcode2023.io.splitMapNotEmpty
+import com.lillicoder.adventofcode.kotlin.io.Resources
+import com.lillicoder.adventofcode.kotlin.text.splitNotEmpty
 import kotlin.math.min
 
 fun main() {
     val day12 = Day12()
-    val springs =
+    val input =
         Resources.lines(
             "input.txt",
-        )?.toRows() ?: throw IllegalArgumentException("Could not read input from file.")
-    println("The number of valid arrangements for factor 1 is ${day12.part1(springs)}.")
-    println("The number of valid arrangements for factor 5 is ${day12.part2(springs)}.")
+        ) ?: throw IllegalArgumentException("Could not read input from file.")
+    println("[Part 1] The number of valid arrangements for factor 1 is ${day12.part1(input)}.")
+    println("[Part 2] The number of valid arrangements for factor 5 is ${day12.part2(input)}.")
 }
 
 class Day12 {
-    fun part1(springs: List<Row>) = mutableMapOf<String, Long>().arrangements(springs)
+    fun part1(input: List<String>) = input.toRows().arrangements()
 
-    fun part2(springs: List<Row>) = mutableMapOf<String, Long>().arrangements(springs, 5)
+    fun part2(input: List<String>) = input.toRows().arrangements(factor = 5)
 }
 
 /**
  * Represents a row of springs and their associated pattern of contiguous broken springs.
  */
-data class Row(
+private data class Row(
     val springs: String,
     val pattern: List<Int>,
 ) {
@@ -96,26 +96,24 @@ data class Row(
  * Converts these strings to an equivalent list of [Row].
  * @return Rows.
  */
-internal fun List<String>.toRows() = map { it.toRow() }
+private fun List<String>.toRows() = map { it.toRow() }
 
 /**
- * Gets all valid arrangements of each of the given [Row] and sums them.
- * This map will be used as a cache during evaluation.
- * @param rows Rows to evaluate.
+ * Gets all valid arrangements for each of these [Row] and sums them.
  * @param factor Fold factor. Defaults to 1.
  * @return Sum of valid arrangements.
  */
-private fun MutableMap<String, Long>.arrangements(
-    rows: List<Row>,
+private fun List<Row>.arrangements(
     factor: Int = 1,
-) = rows.sumOf {
-    val expanded = it.expand(factor)
-    arrangements(expanded)
+) = mutableMapOf<String, Long>().let { cache ->
+    sumOf {
+        val expanded = it.expand(factor)
+        cache.arrangements(expanded)
+    }
 }
 
 /**
- * Gets the number of valid arrangements for the given [Row].
- * This map will be used as a cache during evaluation.
+ * Gets the number of valid arrangements for the given [Row] from this map.
  * @param row Row.
  * @return Number of valid arrangements.
  */
@@ -131,6 +129,6 @@ private fun MutableMap<String, Long>.arrangements(row: Row): Long {
 private fun String.toRow(): Row {
     val parts = split(" ")
     val springs = parts[0]
-    val pattern = parts[1].splitMapNotEmpty(",") { it.toInt() }
+    val pattern = parts[1].splitNotEmpty(",").map { it.toInt() }
     return Row(springs, pattern)
 }
