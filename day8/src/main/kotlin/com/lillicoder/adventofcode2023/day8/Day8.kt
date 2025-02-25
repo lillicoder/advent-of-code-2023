@@ -11,8 +11,8 @@ fun main() {
         Resources.text(
             "input.txt",
         ) ?: throw IllegalArgumentException("Could not read input from file.")
-    println("Total number of steps required to navigate the network is ${day8.part1(input)}.")
-    println("Total number of steps required to navigate the network for a ghost is ${day8.part2(input)}.")
+    println("[Part 1] Total number of steps required to navigate the network is ${day8.part1(input)}.")
+    println("[Part 2] Total number of steps required to navigate the network for a ghost is ${day8.part2(input)}.")
 }
 
 class Day8 {
