@@ -8,6 +8,7 @@ out/
 .project
 .gradle
 *.iml
+gradle.properties
 local.properties
 proguard-project.txt
 Thumbs.db
