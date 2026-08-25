@@ -1,6 +1,6 @@
 [versions]
-advent-of-code = "1.7.1"
-kotlin = "1.9.21"
+advent-of-code = "1.8.1"
+kotlin = "2.4.10"
 
 [libraries]
 advent-of-code-kotlin-collections = { module = "com.github.lillicoder.advent-of-code-kotlin:collections", version.ref = "advent-of-code" }
@@ -14,4 +14,4 @@ kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotl
 
 [plugins]
 kotlin-jvm = { id = "org.jetbrains.kotlin.jvm", version.ref = "kotlin" }
-ktlint-gradle = { id = "org.jlleitschuh.gradle.ktlint", version = "12.0.3" }
+ktlint-gradle = { id = "org.jlleitschuh.gradle.ktlint", version = "14.2.0" }

@@ -20,10 +20,9 @@ plugins {
 }
 
 subprojects {
-    apply(plugin = "org.jetbrains.kotlin.jvm")
-    apply(plugin = "application")
-
-    apply(plugin = "org.jlleitschuh.gradle.ktlint")
+    plugins.apply("org.jetbrains.kotlin.jvm")
+    plugins.apply("application")
+    plugins.apply("org.jlleitschuh.gradle.ktlint")
 
     configure<org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension> {
         jvmToolchain(21)
