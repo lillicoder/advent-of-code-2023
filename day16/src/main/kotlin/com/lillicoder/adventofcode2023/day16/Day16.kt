@@ -72,7 +72,11 @@ private data class Beam(
         val visited = mutableMapOf<Beam, Boolean>()
         propagate(graph, visited)
 
-        return visited.keys.map { it.head }.distinct().count().toLong()
+        return visited.keys
+            .map { it.head }
+            .distinct()
+            .count()
+            .toLong()
     }
 
     /**

@@ -89,10 +89,11 @@ class Day11 {
     private fun Map<Vertex<String>, Coordinates>.galaxyPairs(): List<Pair<Vertex<String>, Vertex<String>>> {
         val galaxies = keys.filter { it.value == "#" }
         val ids = galaxies.associateWith { galaxies.indexOf(it) }
-        return galaxies.flatMap { galaxy ->
-            (galaxies - galaxy).map {
-                if (ids[galaxy]!! > ids[it]!!) Pair(it, galaxy) else Pair(galaxy, it)
-            }
-        }.distinct()
+        return galaxies
+            .flatMap { galaxy ->
+                (galaxies - galaxy).map {
+                    if (ids[galaxy]!! > ids[it]!!) Pair(it, galaxy) else Pair(galaxy, it)
+                }
+            }.distinct()
     }
 }

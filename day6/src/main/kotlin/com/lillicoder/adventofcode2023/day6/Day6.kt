@@ -32,11 +32,14 @@ fun main() {
 
 class Day6 {
     fun part1(input: String) =
-        input.normalizeLineSeparators().toRaces().map {
-            it.countWaysToSetRecord()
-        }.reduce { accumulator, count ->
-            accumulator * count
-        }
+        input
+            .normalizeLineSeparators()
+            .toRaces()
+            .map {
+                it.countWaysToSetRecord()
+            }.reduce { accumulator, count ->
+                accumulator * count
+            }
 
     fun part2(input: String): Long {
         val races = input.normalizeLineSeparators().toRaces()
@@ -64,26 +67,27 @@ private data class Race(
      * @return Count of permutations that result in a new distance record.
      */
     fun countWaysToSetRecord() =
-        LongRange(0, duration).count { speed ->
-            /**
-             * A race is split into two phases:
-             *
-             * 1) Pressing a toy boat's button to charge it
-             * 2) Boat traveling after releasing the charge button
-             *
-             * You can depress the charge button for 0 to N milliseconds, where N is the race duration.
-             * Boat speed is M millimeters/millisecond, where M is how long the button was pressed.
-             *
-             * We will only consider whole integer values, no fractions.
-             *
-             * Naive solution: for each possible value of N, determine how far we go for the remaining
-             * time at speed M. If that distance is greater than the record, we have found a
-             * desired outcome.
-             */
-            val remainingTime = duration - speed
-            val distance = speed * remainingTime
-            distance > bestDistance
-        }.toLong()
+        LongRange(0, duration)
+            .count { speed ->
+                /**
+                 * A race is split into two phases:
+                 *
+                 * 1) Pressing a toy boat's button to charge it
+                 * 2) Boat traveling after releasing the charge button
+                 *
+                 * You can depress the charge button for 0 to N milliseconds, where N is the race duration.
+                 * Boat speed is M millimeters/millisecond, where M is how long the button was pressed.
+                 *
+                 * We will only consider whole integer values, no fractions.
+                 *
+                 * Naive solution: for each possible value of N, determine how far we go for the remaining
+                 * time at speed M. If that distance is greater than the record, we have found a
+                 * desired outcome.
+                 */
+                val remainingTime = duration - speed
+                val distance = speed * remainingTime
+                distance > bestDistance
+            }.toLong()
 }
 
 /**

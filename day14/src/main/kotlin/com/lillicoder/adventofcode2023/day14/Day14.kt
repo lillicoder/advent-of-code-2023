@@ -90,12 +90,14 @@ private fun SquareLatticeGraph<String>.tiltedLoad(
  * @return Load.
  */
 private fun SquareLatticeGraph<String>.load() =
-    rows().map { row ->
-        row.count { it.value == "O" }
-    }.mapIndexed { index, count ->
-        // Load of a row = number of rocks * distance from edge
-        count * (height - index)
-    }.sum().toLong()
+    rows()
+        .map { row ->
+            row.count { it.value == "O" }
+        }.mapIndexed { index, count ->
+            // Load of a row = number of rocks * distance from edge
+            count * (height - index)
+        }.sum()
+        .toLong()
 
 /**
  * Tilts this [SquareLatticeGraph] in each of the given [Direction].
@@ -122,9 +124,10 @@ private fun SquareLatticeGraph<String>.tilt(direction: Direction): SquareLattice
                 }
             }
             Direction.DOWN, Direction.UP -> {
-                columns().map {
-                    it.tilt(comparator)
-                }.columnsToRows() // Convert columns to rows before making graph to ensure proper order
+                columns()
+                    .map {
+                        it.tilt(comparator)
+                    }.columnsToRows() // Convert columns to rows before making graph to ensure proper order
             }
             else -> emptyList()
         }
@@ -140,15 +143,18 @@ private fun SquareLatticeGraph<String>.tilt(direction: Direction): SquareLattice
 private fun List<Vertex<String>>.tilt(comparator: Comparator<String>) =
     joinToString("") {
         it.value
-    }.split("#").map { // Split by cubes, sort each chunk to roll the spheres, and put the cubes back
-        it.splitNotEmpty(
-            "",
-        ).sortedWith(
-            comparator,
-        ).joinToString(
-            "",
-        )
-    }.joinToString("#")
+    }.split("#")
+        .map {
+            // Split by cubes, sort each chunk to roll the spheres, and put the cubes back
+            it
+                .splitNotEmpty(
+                    "",
+                ).sortedWith(
+                    comparator,
+                ).joinToString(
+                    "",
+                )
+        }.joinToString("#")
 
 /**
  * Converts a list of strings representing columns to a list of strings representing
@@ -180,7 +186,9 @@ private fun List<String>.columnsToRows() =
 /**
  * [Comparator] of vertex values based on a given tilt [Direction].
  */
-private class TiltComparator(private val direction: Direction) : Comparator<String> {
+private class TiltComparator(
+    private val direction: Direction,
+) : Comparator<String> {
     override fun compare(
         vertex: String,
         other: String,

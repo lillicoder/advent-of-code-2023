@@ -43,7 +43,9 @@ class Day10 {
 /**
  * Represents an arbitrary grid of pipes. It's not really a maze but whatever.
  */
-private data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
+private data class PipeMaze(
+    private val graph: SquareLatticeGraph<String>,
+) {
     private val validTops =
         mapOf(
             "|" to listOf("|", "7", "F", "S"),
@@ -120,14 +122,15 @@ private data class PipeMaze(private val graph: SquareLatticeGraph<String>) {
     fun enclosedArea(): Long {
         val loop = findLoop()
         val vertices =
-            loop.filter {
-                when (it.value) {
-                    "F", "7", "L", "J", "S" -> true
-                    else -> false
+            loop
+                .filter {
+                    when (it.value) {
+                        "F", "7", "L", "J", "S" -> true
+                        else -> false
+                    }
+                }.map {
+                    Vertex(it.id, it.value)
                 }
-            }.map {
-                Vertex(it.id, it.value)
-            }
 
         val area = vertices.mapNotNull { graph.coordinates(it) }.area() // Total area including boundary vertices
         return Math.area(area, loop.size.toLong()) // Area without boundary vertices

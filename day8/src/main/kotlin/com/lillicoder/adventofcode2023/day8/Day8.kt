@@ -73,16 +73,17 @@ private data class Network(
             instructions.forEach { instruction ->
                 // Navigate all nodes per instruction
                 filtered =
-                    filtered.map { node ->
-                        // Get the next node ID
-                        val nodeId =
-                            when (instruction) {
-                                "L" -> node.left!!
-                                else -> node.right!!
-                            }
-                        // Navigate to next node
-                        nodes[nodeId]!!
-                    }.toMutableList()
+                    filtered
+                        .map { node ->
+                            // Get the next node ID
+                            val nodeId =
+                                when (instruction) {
+                                    "L" -> node.left!!
+                                    else -> node.right!!
+                                }
+                            // Navigate to next node
+                            nodes[nodeId]!!
+                        }.toMutableList()
 
                 // Update steps by 1
                 steps++

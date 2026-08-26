@@ -31,24 +31,35 @@ fun main() {
 
 class Day2 {
     fun part1(input: List<String>) =
-        input.map {
-            it.toGame()
-        }.sumOf {
-            if (it.isValid) it.id else 0
-        }
+        input
+            .map {
+                it.toGame()
+            }.sumOf {
+                if (it.isValid) it.id else 0
+            }
 
     fun part2(input: List<String>) =
-        input.map {
-            it.toGame()
-        }.sumOf { game ->
-            listOf(
-                game.rounds.maxByOrNull { it.blue.count }?.blue?.count ?: 0,
-                game.rounds.maxByOrNull { it.green.count }?.green?.count ?: 0,
-                game.rounds.maxByOrNull { it.red.count }?.red?.count ?: 0,
-            ).reduce { accumulator, element ->
-                accumulator * element
+        input
+            .map {
+                it.toGame()
+            }.sumOf { game ->
+                listOf(
+                    game.rounds
+                        .maxByOrNull { it.blue.count }
+                        ?.blue
+                        ?.count ?: 0,
+                    game.rounds
+                        .maxByOrNull { it.green.count }
+                        ?.green
+                        ?.count ?: 0,
+                    game.rounds
+                        .maxByOrNull { it.red.count }
+                        ?.red
+                        ?.count ?: 0,
+                ).reduce { accumulator, element ->
+                    accumulator * element
+                }
             }
-        }
 }
 
 /**
@@ -56,7 +67,9 @@ class Day2 {
  * in any given pull of a round of a game.
  * @param max Maximum amount of this color allowed in any given pull of cubes in a round.
  */
-private enum class Color(val max: Int) {
+private enum class Color(
+    val max: Int,
+) {
     BLUE(14),
     GREEN(13),
     RED(12),

@@ -248,9 +248,11 @@ private fun List<Card>.compareTo(other: List<Card>): Int {
  * @return Winnings.
  */
 private fun List<Hand>.winnings() =
-    sorted().mapIndexed { rank, hand ->
-        (rank + 1) * hand.bid // Indexes are 0-based, add 1 to get true rank value
-    }.sum().toLong()
+    sorted()
+        .mapIndexed { rank, hand ->
+            (rank + 1) * hand.bid // Indexes are 0-based, add 1 to get true rank value
+        }.sum()
+        .toLong()
 
 /**
  * Converts this list of string to a pair of list of [Hand].
@@ -281,11 +283,12 @@ private fun Map<Card, Int>.max() = filterKeys { it != Card.JOKER }.maxByOrNull {
  * @return Card.
  */
 private fun String.toCard(filter: (Card) -> Boolean) =
-    Card.entries.filter {
-        filter(it)
-    }.find {
-        it.symbol == this
-    }!!
+    Card.entries
+        .filter {
+            filter(it)
+        }.find {
+            it.symbol == this
+        }!!
 
 /**
  * Converts this string to a list of [Card].

@@ -30,14 +30,16 @@ fun main() {
 
 class Day1 {
     fun part1(input: List<String>) =
-        input.sumOf { line ->
-            "${line.first { it.isDigit() }}${line.last { it.isDigit() }}".toInt()
-        }.toLong()
+        input
+            .sumOf { line ->
+                "${line.first { it.isDigit() }}${line.last { it.isDigit() }}".toInt()
+            }.toLong()
 
     fun part2(input: List<String>) =
-        input.sumOf { line ->
-            line.joinFirstAndLastDigits()
-        }.toLong()
+        input
+            .sumOf { line ->
+                line.joinFirstAndLastDigits()
+            }.toLong()
 }
 
 /**
@@ -86,7 +88,14 @@ private fun String.digit(position: Position): Int {
                 DigitLookup(
                     { it.firstOrNull { it.isDigit() } },
                     { line, digit -> line.indexOf(digit) },
-                    { it.toRegex().findAll(this).firstOrNull()?.range?.first ?: Int.MAX_VALUE },
+                    {
+                        it
+                            .toRegex()
+                            .findAll(this)
+                            .firstOrNull()
+                            ?.range
+                            ?.first ?: Int.MAX_VALUE
+                    },
                     { it.min() },
                 )
             }
@@ -94,7 +103,14 @@ private fun String.digit(position: Position): Int {
                 DigitLookup(
                     { it.lastOrNull { it.isDigit() } },
                     { line, digit -> line.lastIndexOf(digit) },
-                    { it.toRegex().findAll(this).lastOrNull()?.range?.last ?: Int.MIN_VALUE },
+                    {
+                        it
+                            .toRegex()
+                            .findAll(this)
+                            .lastOrNull()
+                            ?.range
+                            ?.last ?: Int.MIN_VALUE
+                    },
                     { it.max() },
                 )
             }

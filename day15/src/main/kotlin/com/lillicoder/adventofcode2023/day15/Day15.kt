@@ -46,11 +46,14 @@ class Day15 {
         }
 
         // Apply the focus power formula to each lens in each box and sum them all up
-        return boxes.mapIndexed { boxIndex, box ->
-            box.entries.mapIndexed { index, entry ->
-                (boxIndex + 1) * (index + 1) * entry.value
+        return boxes
+            .mapIndexed { boxIndex, box ->
+                box.entries
+                    .mapIndexed { index, entry ->
+                        (boxIndex + 1) * (index + 1) * entry.value
+                    }.sum()
             }.sum()
-        }.sum().toLong()
+            .toLong()
     }
 }
 

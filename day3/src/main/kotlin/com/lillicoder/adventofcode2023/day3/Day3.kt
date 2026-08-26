@@ -34,23 +34,28 @@ fun main() {
 
 class Day3 {
     fun part1(input: String) =
-        input.gridToGraph(
-            allowDiagonals = true,
-        ).toSchematic().let { schematic ->
-            schematic.numbers.sumOf {
-                when (schematic.isAnyNeighborToNonPeriodNonNumericSymbol(it)) {
-                    true -> it.join()
-                    false -> 0
+        input
+            .gridToGraph(
+                allowDiagonals = true,
+            ).toSchematic()
+            .let { schematic ->
+                schematic.numbers.sumOf {
+                    when (schematic.isAnyNeighborToNonPeriodNonNumericSymbol(it)) {
+                        true -> it.join()
+                        false -> 0
+                    }
                 }
             }
-        }
 
     fun part2(input: String) =
-        input.gridToGraph(
-            allowDiagonals = true,
-        ).toSchematic().gears().sumOf {
-            it.ratio
-        }
+        input
+            .gridToGraph(
+                allowDiagonals = true,
+            ).toSchematic()
+            .gears()
+            .sumOf {
+                it.ratio
+            }
 }
 
 /**
@@ -110,9 +115,10 @@ private data class Schematic(
                 val neighbors = graph.neighbors(vertex).filter { it.value.toIntOrNull() != null }
                 if (neighbors.size > 1) {
                     val partNumbers =
-                        neighbors.mapNotNull { neighbor ->
-                            numbers.find { it.contains(neighbor) }?.join()
-                        }.toSet()
+                        neighbors
+                            .mapNotNull { neighbor ->
+                                numbers.find { it.contains(neighbor) }?.join()
+                            }.toSet()
 
                     if (partNumbers.size == 2) {
                         ratios.add(Gear(vertex, partNumbers.toList()))
@@ -131,11 +137,12 @@ private data class Schematic(
      * @return True if any of the given vertices is neighbor to a non-period, non-numeric symbol, false otherwise.
      */
     fun isAnyNeighborToNonPeriodNonNumericSymbol(vertices: List<Vertex<String>>) =
-        vertices.map {
-            graph.neighbors(it)
-        }.any { neighbors ->
-            neighbors.any {
-                it.value != "." && it.value.toIntOrNull() == null
+        vertices
+            .map {
+                graph.neighbors(it)
+            }.any { neighbors ->
+                neighbors.any {
+                    it.value != "." && it.value.toIntOrNull() == null
+                }
             }
-        }
 }
