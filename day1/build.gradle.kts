@@ -14,12 +14,10 @@
  * limitations under the License.
  */
 
-dependencies {
-    implementation(libs.advent.of.code.kotlin.io)
-    implementation(libs.kotlin.stdlib)
-    testImplementation(libs.kotlin.test)
+plugins {
+    id("day-conventions")
 }
 
-tasks.test {
-    useJUnitPlatform()
+dependencies {
+    implementation(libs.advent.of.code.kotlin.io)
 }

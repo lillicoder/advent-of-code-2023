@@ -40,6 +40,7 @@ plugins {
     id("org.gradle.toolchains.foojay-resolver-convention") version("1.0.0")
 }
 
+includeBuild("build-logic")
 include(":day1")
 include(":day2")
 include(":day3")
